@@ -22,4 +22,5 @@ class SwipeController extends ItemTouchHelper.Callback {
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
 
     }
+
 }
