@@ -1,13 +1,18 @@
 package com.example.todolists;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
-
 
 import com.github.clans.fab.FloatingActionButton;
 import com.yanzhenjie.recyclerview.OnItemMenuClickListener;
@@ -17,6 +22,7 @@ import com.yanzhenjie.recyclerview.SwipeMenuCreator;
 import com.yanzhenjie.recyclerview.SwipeMenuItem;
 import com.yanzhenjie.recyclerview.SwipeRecyclerView;
 
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRecyclerView swipeRecyclerView;
     private TaskAdapter adapter;
     private FloatingActionButton floatingActionButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
         // set-up swipe recycler view
         swipeRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
         swipeRecyclerView.setAdapter(adapter);
+
+        floatingActionButton.setOnClickListener(clickListener);
+
     }
 
     private void addItemsToList(ArrayList items) {
@@ -101,4 +111,36 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
+    private View.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+
+            final EditText edittext = new EditText(MainActivity.this);
+            edittext.setWidth(10);
+            alert.setMessage("How about clean the room?");
+            alert.setTitle("Add a new task");
+
+            alert.setView(edittext);
+
+            alert.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    //What ever you want to do with the value
+                    Editable YouEditTextValue = edittext.getText();
+                    //OR
+//                    String YouEditTextValue = edittext.getText().toString();
+                }
+            });
+
+            alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    // what ever you want to do with No option.
+                }
+            });
+
+            alert.show();
+
+        }
+    };
 }
