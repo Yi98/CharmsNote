@@ -8,25 +8,36 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/HeaderBar"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        android:elevation="4dp"
+        />
+
     <com.yanzhenjie.recyclerview.SwipeRecyclerView
         android:id="@+id/swipe_recyclerView"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/my_toolbar"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <com.github.clans.fab.FloatingActionButton
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:layout_marginBottom="15dp"
-        android:layout_marginRight="15dp"
-        android:src="@drawable/fab_add"
+        android:layout_gravity="end|bottom"
+        android:src="@drawable/ic_launcher_foreground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        tools:fab_colorNormal="@color/app_primary"
-        tools:fab_colorPressed="@color/app_primary_pressed"
-        tools:fab_colorRipple="@color/app_ripple"/>
+        tools:fab_colorNormal="@color/colorAccent"
+        tools:fab_colorPressed="@color/colorAccent"
+        tools:fab_colorRipple="@color/colorAccent"
+        android:layout_margin="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
