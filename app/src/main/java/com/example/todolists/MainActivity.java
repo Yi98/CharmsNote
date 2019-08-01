@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ import com.yanzhenjie.recyclerview.SwipeMenuItem;
 import com.yanzhenjie.recyclerview.SwipeRecyclerView;
 
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRecyclerView swipeRecyclerView;
     private TaskAdapter adapter;
     private FloatingActionButton floatingActionButton;
+    private ArrayList<Task> tasks = new ArrayList<>();
 
 
     @Override
@@ -40,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
         swipeRecyclerView = findViewById(R.id.swipe_recyclerView);
         floatingActionButton = findViewById(R.id.fab);
 
-        ArrayList<Task> tasks = new ArrayList<>();
 
         addItemsToList(tasks);
 
@@ -71,25 +73,25 @@ public class MainActivity extends AppCompatActivity {
 
             // Use either match parent or specific height
 //                int height = ViewGroup.LayoutParams.MATCH_PARENT;
-            int height = 75;
+            int height = 175;
 
             // right menu
             {
-                SwipeMenuItem deleteItem = new SwipeMenuItem(MainActivity.this).setBackground(R.drawable.ic_launcher_foreground)
-//                            .setImage(R.drawable.ic_launcher_foreground)
-                        .setText("Delete")
-                        .setTextColor(Color.BLACK)
-                        .setWidth(width)
-                        .setHeight(height);
-                swipeRightMenu.addMenuItem(deleteItem);// 添加菜单到右侧。
-
-                SwipeMenuItem addItem = new SwipeMenuItem(MainActivity.this).setBackground(R.drawable.ic_launcher_foreground)
+                SwipeMenuItem addItem = new SwipeMenuItem(MainActivity.this).setBackground(R.drawable.ic_launcher_background)
 //                            .setImage(R.drawable.ic_launcher_foreground)
                         .setText("Edit")
                         .setTextColor(Color.BLACK)
                         .setWidth(width)
                         .setHeight(height);
                 swipeRightMenu.addMenuItem(addItem); // 添加菜单到右侧。
+
+                SwipeMenuItem deleteItem = new SwipeMenuItem(MainActivity.this).setBackground(R.drawable.ic_launcher_foreground)
+//                            .setImage(R.drawable.ic_launcher_foreground)
+                        .setText("Archive")
+                        .setTextColor(Color.BLACK)
+                        .setWidth(width)
+                        .setHeight(height);
+                swipeRightMenu.addMenuItem(deleteItem);// 添加菜单到右侧。
             }
         }
     };
@@ -97,16 +99,50 @@ public class MainActivity extends AppCompatActivity {
 
     private OnItemMenuClickListener mMenuItemClickListener = new OnItemMenuClickListener() {
         @Override
-        public void onItemClick(SwipeMenuBridge menuBridge, int position) {
+        public void onItemClick(SwipeMenuBridge menuBridge, final int position) {
             menuBridge.closeMenu();
 
             int direction = menuBridge.getDirection(); // 左侧还是右侧菜单。
             int menuPosition = menuBridge.getPosition(); // 菜单在RecyclerView的Item中的Position。
 
             if (direction == SwipeRecyclerView.RIGHT_DIRECTION) {
-                Toast.makeText(MainActivity.this, "list第" + position + "; 右侧菜单第" + menuPosition, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "list第" + position + "; 右侧菜单第" + menuPosition, Toast.LENGTH_SHORT).show();
+
+                if (menuPosition == 0) {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+
+                    final EditText edittext = new EditText(MainActivity.this);
+                    edittext.setText(adapter.getItem(position).getTitle());
+
+//            alert.setMessage("How about clean the room?");
+                    alert.setTitle("Edit task");
+
+                    alert.setView(edittext);
+
+                    alert.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            String newItem = edittext.getText().toString();
+                            adapter.getItem(position).setTitle(newItem);
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+
+                    alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            // what ever you want to do with No option.
+                        }
+                    });
+
+                    alert.show();
+                }
+                else if (menuPosition == 1) {
+                    tasks.remove(position);
+                }
+
+                adapter.notifyDataSetChanged();
+
             } else if (direction == SwipeRecyclerView.LEFT_DIRECTION) {
-                Toast.makeText(MainActivity.this, "list第" + position + "; 左侧菜单第" + menuPosition, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "list第" + position + "; 左侧菜单第" + menuPosition, Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -118,18 +154,16 @@ public class MainActivity extends AppCompatActivity {
             AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
 
             final EditText edittext = new EditText(MainActivity.this);
-            edittext.setWidth(10);
-            alert.setMessage("How about clean the room?");
+//            alert.setMessage("How about clean the room?");
             alert.setTitle("Add a new task");
 
             alert.setView(edittext);
 
             alert.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    //What ever you want to do with the value
-                    Editable YouEditTextValue = edittext.getText();
-                    //OR
-//                    String YouEditTextValue = edittext.getText().toString();
+                    String newItem = edittext.getText().toString();
+                    tasks.add(new Task(newItem));
+                    adapter.notifyDataSetChanged();
                 }
             });
 
