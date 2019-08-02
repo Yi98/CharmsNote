@@ -13,10 +13,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.takusemba.spotlight.OnSpotlightStateChangedListener;
+import com.takusemba.spotlight.OnTargetStateChangedListener;
+import com.takusemba.spotlight.Spotlight;
+import com.takusemba.spotlight.shape.Circle;
+import com.takusemba.spotlight.target.SimpleTarget;
 import com.yanzhenjie.recyclerview.OnItemMenuClickListener;
 import com.yanzhenjie.recyclerview.SwipeMenu;
 import com.yanzhenjie.recyclerview.SwipeMenuBridge;
@@ -60,6 +66,44 @@ public class MainActivity extends AppCompatActivity {
 
         floatingActionButton.setOnClickListener(clickListener);
 
+
+        SimpleTarget simpleTarget = new SimpleTarget.Builder(this)
+                .setPoint(965f, 1678f)
+                .setShape(new Circle(80f)) // or RoundedRectangle()
+                .setTitle("Add tasks")
+                .setDescription("Add a new task to the goal")
+                .setOverlayPoint(450f, 1300f)
+                .setOnSpotlightStartedListener(new OnTargetStateChangedListener<SimpleTarget>() {
+                    @Override
+                    public void onStarted(SimpleTarget target) {
+                        // do something
+                    }
+                    @Override
+                    public void onEnded(SimpleTarget target) {
+                        // do something
+                    }
+                })
+                .build();
+
+        Spotlight.with(this)
+                .setOverlayColor(R.color.background)
+                .setDuration(1000L)
+                .setAnimation(new DecelerateInterpolator(2f))
+                .setTargets(simpleTarget)
+                .setClosedOnTouchedOutside(true)
+                .setOnSpotlightStateListener(new OnSpotlightStateChangedListener() {
+                    @Override
+                    public void onStarted() {
+//                        Toast.makeText(MainActivity.this, "spotlight is started", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onEnded() {
+//                        Toast.makeText(MainActivity.this, "spotlight is ended", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .start();
+
     }
 
     private void addItemsToList(ArrayList items) {
@@ -79,16 +123,18 @@ public class MainActivity extends AppCompatActivity {
 
             // right menu
             {
-                SwipeMenuItem addItem = new SwipeMenuItem(MainActivity.this).setBackground(R.drawable.ic_launcher_background)
-//                            .setImage(R.drawable.ic_launcher_foreground)
+                SwipeMenuItem addItem = new SwipeMenuItem(MainActivity.this)
+//                        .setBackground(R.drawable.ic_launcher_background)
+                        .setImage(R.drawable.edit)
                         .setText("Edit")
                         .setTextColor(Color.BLACK)
                         .setWidth(width)
                         .setHeight(height);
                 swipeRightMenu.addMenuItem(addItem); // 添加菜单到右侧。
 
-                SwipeMenuItem deleteItem = new SwipeMenuItem(MainActivity.this).setBackground(R.drawable.ic_launcher_foreground)
-//                            .setImage(R.drawable.ic_launcher_foreground)
+                SwipeMenuItem deleteItem = new SwipeMenuItem(MainActivity.this)
+//                        .setBackground(R.drawable.ic_launcher_foreground)
+                        .setImage(R.drawable.archive)
                         .setText("Archive")
                         .setTextColor(Color.BLACK)
                         .setWidth(width)
