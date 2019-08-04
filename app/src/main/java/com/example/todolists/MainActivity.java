@@ -185,6 +185,20 @@ public class MainActivity extends AppCompatActivity {
     private View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            if (editing) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("You are in edit mode!");
+                builder.setMessage("Adding item can only be done in safe mode.");
+                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                builder.show();
+                return;
+            }
+
             AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
 
             final EditText edittext = new EditText(MainActivity.this);
