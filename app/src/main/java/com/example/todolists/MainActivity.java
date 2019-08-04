@@ -3,17 +3,20 @@ package com.example.todolists;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.TransitionManager;
 
 import android.content.DialogInterface;
-import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,12 +31,13 @@ import com.takusemba.spotlight.target.SimpleTarget;
 
 import java.util.ArrayList;
 
+import petrov.kristiyan.colorpicker.ColorPicker;
+
 public class MainActivity extends AppCompatActivity {
 
     private TaskAdapter adapter;
     private FloatingActionButton floatingActionButton;
     private Toolbar toolbar;
-    private ArrayList<Task> tasks = new ArrayList<>();
     private ExpandingList expandingList;
 
 
@@ -44,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupSpotlight();
 
-        expandingList = (ExpandingList) findViewById(R.id.expanding_list_main);
+        expandingList = findViewById(R.id.expanding_list_main);
 
         createItems();
 
@@ -55,16 +59,14 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        adapter = new TaskAdapter(tasks);
 
         floatingActionButton.setOnClickListener(clickListener);
-
-
     }
 
+
     private void createItems() {
-        addItem("Homework", new String[]{"Computer System", "Intro to programming"}, R.color.colorAccent, R.drawable.ic_launcher_foreground);
-        addItem("Grocery", new String[]{"Banana", "Eggs", "Chicken Breast"}, R.color.colorAccent, R.drawable.ic_launcher_foreground);
+        addItem("Homework", new String[]{"Computer System", "Intro to programming"}, R.color.color1, R.drawable.ic_launcher_foreground);
+        addItem("Grocery", new String[]{"Banana", "Eggs", "Chicken Breast"}, R.color.color1, R.drawable.ic_launcher_foreground);
     }
 
 
@@ -88,16 +90,30 @@ public class MainActivity extends AppCompatActivity {
                 //Let's set some values in
                 configureSubItem(item, view, subItems[i]);
             }
+
             item.findViewById(R.id.add_more_sub_items).setOnClickListener(new View.OnClickListener() {
+                ImageView addSubImg = item.findViewById(R.id.add_more_sub_items);
+
+
                 @Override
                 public void onClick(View v) {
+                    if (addSubImg.getRotation() != 0) {
+                        addSubImg.animate().rotation(0).start();
+                    }
+                    else {
+                        addSubImg.animate().rotation(45).start();
+                    }
+
+//                    addSubImg.setImageDrawable(getResources().getDrawable(R.drawable.clear_black));
+
+
                     showInsertDialog(new OnItemCreated() {
                         @Override
                         public void itemCreated(String title) {
                             View newSubItem = item.createSubItem();
                             configureSubItem(item, newSubItem, title);
                         }
-                    });
+                    }, item);
                 }
             });
 
@@ -123,11 +139,10 @@ public class MainActivity extends AppCompatActivity {
         final TextView tv = view.findViewById(R.id.sub_title);
 
         tv.setText(subTitle);
+
         view.findViewById(R.id.remove_sub_item).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("hlb", Integer.toString((tv.getPaintFlags())));
-
                 if (tv.getPaintFlags() == 1297) {
                     item.removeSubItem(view);
                 }
@@ -138,18 +153,31 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void showInsertDialog(final OnItemCreated positive) {
+    private void showInsertDialog(final OnItemCreated positive, View view) {
         final EditText text = new EditText(this);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(text);
         builder.setTitle("Add a sub-item");
+
+        final ImageView addSubImg = view.findViewById(R.id.add_more_sub_items);
+
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 positive.itemCreated(text.getText().toString());
+                addSubImg.animate().rotation(0).start();
             }
         });
-        builder.setNegativeButton(android.R.string.cancel, null);
+
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                addSubImg.animate().rotation(0).start();
+            }
+        });
+
         builder.show();
     }
 
@@ -171,11 +199,76 @@ public class MainActivity extends AppCompatActivity {
 
             alert.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    String newItem = edittext.getText().toString();
-                    tasks.add(new Task(newItem));
+                    final String newItem = edittext.getText().toString();
 
-//                    adapter.notifyDataSetChanged();
-                    addItem(newItem, new String[]{}, R.color.colorAccent, R.drawable.ic_launcher_foreground);
+                    ColorPicker colorPicker = new ColorPicker(MainActivity.this);
+                    colorPicker.show();
+                    colorPicker.setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
+                        @Override
+                        public void onChooseColor(int position, int color) {
+                            int colorId;
+
+                            switch (position) {
+                                case 0:
+                                    colorId = R.color.color1;
+                                    break;
+                                case 1:
+                                    colorId = R.color.color2;
+                                    break;
+                                case 2:
+                                    colorId = R.color.color3;
+                                    break;
+                                case 3:
+                                    colorId = R.color.color4;
+                                    break;
+                                case 4:
+                                    colorId = R.color.color5;
+                                    break;
+                                case 5:
+                                    colorId = R.color.color6;
+                                    break;
+                                case 6:
+                                    colorId = R.color.color7;
+                                    break;
+                                case 7:
+                                    colorId = R.color.color8;
+                                    break;
+                                case 8:
+                                    colorId = R.color.color9;
+                                    break;
+                                case 9:
+                                    colorId = R.color.color10;
+                                    break;
+                                case 10:
+                                    colorId = R.color.color11;
+                                    break;
+                                case 11:
+                                    colorId = R.color.color12;
+                                    break;
+                                case 12:
+                                    colorId = R.color.color13;
+                                    break;
+                                case 13:
+                                    colorId = R.color.color14;
+                                    break;
+                                case 14:
+                                    colorId = R.color.color15;
+                                    break;
+                                default:
+                                    colorId = R.color.white;
+                            }
+
+                            addItem(newItem, new String[]{"Add a new sub-task"}, colorId, R.drawable.ic_launcher_foreground);
+                        }
+
+                        @Override
+                        public void onCancel(){
+                            // put code
+                        }
+                    });
+
+                    // add color sheet
+
 
                 }
             });

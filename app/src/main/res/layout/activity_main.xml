@@ -26,6 +26,7 @@
         android:text="To Do List"
         android:textAllCaps="true"
         android:textSize="20dp"
+        android:textColor="@color/black"
         android:fontFamily="sans-serif-light"
         android:layout_gravity="center"
         android:id="@+id/toolbar_title" />

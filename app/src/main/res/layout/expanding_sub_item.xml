@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:layout_centerVertical="true"
         android:layout_marginLeft="8dp"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="18sp"
         android:gravity="center_vertical|left"/>
 
@@ -24,6 +24,6 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:padding="16dp"
-        app:srcCompat="@drawable/clear"/>
+        app:srcCompat="@drawable/clear_black"/>
 
 </RelativeLayout>
