@@ -6,7 +6,7 @@
         android:id="@+id/action_favorite"
         android:orderInCategory="300"
         android:title="User"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/pen_black"
         app:showAsAction="ifRoom"></item>
 
 </menu>

@@ -10,6 +10,9 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -92,28 +95,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
             item.findViewById(R.id.add_more_sub_items).setOnClickListener(new View.OnClickListener() {
-                ImageView addSubImg = item.findViewById(R.id.add_more_sub_items);
-
-
                 @Override
                 public void onClick(View v) {
-                    if (addSubImg.getRotation() != 0) {
-                        addSubImg.animate().rotation(0).start();
-                    }
-                    else {
-                        addSubImg.animate().rotation(45).start();
-                    }
-
-//                    addSubImg.setImageDrawable(getResources().getDrawable(R.drawable.clear_black));
-
-
-                    showInsertDialog(new OnItemCreated() {
-                        @Override
-                        public void itemCreated(String title) {
-                            View newSubItem = item.createSubItem();
-                            configureSubItem(item, newSubItem, title);
-                        }
-                    }, item);
+                    item.toggleExpanded();
                 }
             });
 
@@ -135,13 +119,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         item.setStateChangedListener(new ExpandingItem.OnItemStateChanged() {
+            ImageView addSubImg = item.findViewById(R.id.add_more_sub_items);
+
             @Override
             public void itemCollapseStateChanged(boolean expanded) {
                 if (item.isExpanded()) {
-                    item.setIndicatorIcon(getResources().getDrawable(R.drawable.delete));
+                    addSubImg.animate().rotation(180).start();
                 }
                 else {
-                    item.setIndicatorIcon(getResources().getDrawable(R.drawable.pen));
+                    addSubImg.animate().rotation(0).start();
                 }
             }
         });
@@ -171,14 +157,12 @@ public class MainActivity extends AppCompatActivity {
         builder.setView(text);
         builder.setTitle("Add a sub-item");
 
-        final ImageView addSubImg = view.findViewById(R.id.add_more_sub_items);
 
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 positive.itemCreated(text.getText().toString());
-                addSubImg.animate().rotation(0).start();
             }
         });
 
@@ -186,7 +170,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                addSubImg.animate().rotation(0).start();
             }
         });
 
@@ -270,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
                                     colorId = R.color.white;
                             }
 
-                            addItem(newItem, new String[]{"Add a new sub-task"}, colorId, R.drawable.delete);
+                            addItem(newItem, new String[]{"Add a new sub-task"}, colorId, R.drawable.pen);
                         }
 
                         @Override
@@ -336,28 +319,37 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .start();
     }
-//
-//
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_favorite) {
-//            Toast.makeText(MainActivity.this, "Action clicked", Toast.LENGTH_LONG).show();
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        ExpandingList expandingList = findViewById(R.id.expanding_list_main);
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_favorite) {
+
+            for (int i = 0; i < expandingList.getItemsCount(); i++) {
+                View view = expandingList.getItemByIndex(i);
+                ImageView deleteImg = view.findViewById(R.id.remove_item);
+                deleteImg.setVisibility(View.VISIBLE);
+            }
+
+            Toast.makeText(MainActivity.this, "Edit mode", Toast.LENGTH_LONG).show();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 }

@@ -24,7 +24,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:padding="12dp"
-        android:src="@drawable/add_black"/>
+        android:src="@drawable/down_black"/>
 
     <ImageView
         android:id="@+id/remove_item"
@@ -36,6 +36,7 @@
         android:layout_toStartOf="@id/add_more_sub_items"
         android:layout_toLeftOf="@id/add_more_sub_items"
         android:padding="12dp"
+        android:visibility="invisible"
         android:src="@drawable/clear_black"/>
 
 </RelativeLayout>
