@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void createItems() {
-        addItem("Homework", new String[]{"Computer System", "Intro to programming"}, R.color.color1, R.drawable.ic_launcher_foreground);
-        addItem("Grocery", new String[]{"Banana", "Eggs", "Chicken Breast"}, R.color.color1, R.drawable.ic_launcher_foreground);
+        addItem("Homework", new String[]{"Computer System", "Intro to programming"}, R.color.color1, R.drawable.pen);
+        addItem("Grocery", new String[]{"Banana", "Eggs", "Chicken Breast"}, R.color.color1, R.drawable.pen);
     }
 
 
@@ -133,6 +133,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+
+        item.setStateChangedListener(new ExpandingItem.OnItemStateChanged() {
+            @Override
+            public void itemCollapseStateChanged(boolean expanded) {
+                if (item.isExpanded()) {
+                    item.setIndicatorIcon(getResources().getDrawable(R.drawable.delete));
+                }
+                else {
+                    item.setIndicatorIcon(getResources().getDrawable(R.drawable.pen));
+                }
+            }
+        });
     }
 
     private void configureSubItem(final ExpandingItem item, final View view, String subTitle) {
@@ -258,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
                                     colorId = R.color.white;
                             }
 
-                            addItem(newItem, new String[]{"Add a new sub-task"}, colorId, R.drawable.ic_launcher_foreground);
+                            addItem(newItem, new String[]{"Add a new sub-task"}, colorId, R.drawable.delete);
                         }
 
                         @Override
