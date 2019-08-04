@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton floatingActionButton;
     private Toolbar toolbar;
     private ExpandingList expandingList;
+    private boolean editing = false;
 
 
     @Override
@@ -336,18 +337,34 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         ExpandingList expandingList = findViewById(R.id.expanding_list_main);
+        final Animation animShake = AnimationUtils.loadAnimation(this, R.anim.rotate);
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_favorite) {
-
+        if (!editing) {
             for (int i = 0; i < expandingList.getItemsCount(); i++) {
                 View view = expandingList.getItemByIndex(i);
                 ImageView deleteImg = view.findViewById(R.id.remove_item);
                 deleteImg.setVisibility(View.VISIBLE);
+                item.setIcon(R.drawable.done_black);
+
+                deleteImg.startAnimation(animShake);
             }
 
+            editing = true;
             Toast.makeText(MainActivity.this, "Edit mode", Toast.LENGTH_LONG).show();
             return true;
+
+        } else if (editing) {
+            for (int i = 0; i < expandingList.getItemsCount(); i++) {
+                View view = expandingList.getItemByIndex(i);
+                ImageView deleteImg = view.findViewById(R.id.remove_item);
+                deleteImg.clearAnimation();
+                deleteImg.setVisibility(View.GONE);
+                item.setIcon(R.drawable.pen_black);
+            }
+
+            editing = false;
+            Toast.makeText(MainActivity.this, "Safe mode", Toast.LENGTH_LONG).show();
         }
 
         return super.onOptionsItemSelected(item);
