@@ -3,6 +3,7 @@ package com.example.todolists;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.widget.NestedScrollView;
 import androidx.transition.TransitionManager;
 
 import android.content.DialogInterface;
@@ -14,12 +15,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,11 +41,11 @@ import petrov.kristiyan.colorpicker.ColorPicker;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TaskAdapter adapter;
     private FloatingActionButton floatingActionButton;
     private Toolbar toolbar;
     private ExpandingList expandingList;
     private boolean editing = false;
+    private ScrollView scrollView;
 
 
     @Override
@@ -53,6 +56,22 @@ public class MainActivity extends AppCompatActivity {
         setupSpotlight();
 
         expandingList = findViewById(R.id.expanding_list_main);
+        scrollView = findViewById(R.id.scrollView);
+
+        scrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View view, int i, int i1, int i2, int i3) {
+                // il is new scrollY, i3 is old scrollY
+                if (i1 > i3) {
+                    floatingActionButton.hide();
+                }
+                else if (i1< i3) {
+                    floatingActionButton.show();
+                }
+
+            }
+        });
+
 
         createItems();
 
@@ -70,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void createItems() {
         addItem("Homework", new String[]{"Computer System", "Intro to programming", "Add a new sub-task"}, R.color.color1, R.drawable.pen);
-        addItem("Grocery", new String[]{"Banana", "Eggs", "Chicken Breast", "Add a new sub-task"}, R.color.color4, R.drawable.pen);
+        addItem("Grocery", new String[]{"Banana", "Eggs", "Chicken Breast", "Add a new sub-task"}, R.color.color3, R.drawable.pen);
     }
 
 
@@ -149,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (isLastItem) {
-            view.findViewById(R.id.remove_sub_item).setOnClickListener(new View.OnClickListener() {
+            view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     showInsertDialog(new OnItemCreated() {
@@ -163,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
         else {
-            view.findViewById(R.id.remove_sub_item).setOnClickListener(new View.OnClickListener() {
+            view.setOnClickListener(new View.OnClickListener() {
                 ImageView removeSub = view.findViewById(R.id.remove_sub_item);
 
                 @Override
@@ -171,7 +190,6 @@ public class MainActivity extends AppCompatActivity {
                     if (tv.getPaintFlags() == 1297) {
                         removeSub.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_black));
                         tv.setPaintFlags(tv.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
-//                        item.removeSubItem(view);
                     }
                     else {
                         removeSub.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_complete_black));
@@ -396,6 +414,8 @@ public class MainActivity extends AppCompatActivity {
                     subImg.setImageDrawable(getResources().getDrawable(R.drawable.clear_black));
                     subImg.startAnimation(animShake);
 
+                    subView.setOnClickListener(null);
+
                     subImg.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -423,7 +443,7 @@ public class MainActivity extends AppCompatActivity {
 
                 for (int j = 0; j < ((ExpandingItem) view).getSubItemsCount() - 1; j++) {
                     View subView = ((ExpandingItem) view).getSubItemView(j);
-                    ImageView subImg = subView.findViewById(R.id.remove_sub_item);
+                    final ImageView subImg = subView.findViewById(R.id.remove_sub_item);
 
                     final TextView tv = subView.findViewById(R.id.sub_title);
 
@@ -433,6 +453,34 @@ public class MainActivity extends AppCompatActivity {
                     else {
                         subImg.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_black));
                     }
+
+                    subImg.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (tv.getPaintFlags() == 1297) {
+                                subImg.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_black));
+                                tv.setPaintFlags(tv.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
+                            }
+                            else {
+                                subImg.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_complete_black));
+                                tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                            }
+                        }
+                    });
+
+                    subView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (tv.getPaintFlags() == 1297) {
+                                subImg.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_black));
+                                tv.setPaintFlags(tv.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
+                            }
+                            else {
+                                subImg.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_complete_black));
+                                tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                            }
+                        }
+                    });
 
                     subImg.clearAnimation();
 
