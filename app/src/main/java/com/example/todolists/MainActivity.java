@@ -69,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void createItems() {
-        addItem("Homework", new String[]{"Computer System", "Intro to programming"}, R.color.color1, R.drawable.pen);
-        addItem("Grocery", new String[]{"Banana", "Eggs", "Chicken Breast"}, R.color.color1, R.drawable.pen);
+        addItem("Homework", new String[]{"Computer System", "Intro to programming", "Add a new sub-task"}, R.color.color1, R.drawable.pen);
+        addItem("Grocery", new String[]{"Banana", "Eggs", "Chicken Breast", "Add a new sub-task"}, R.color.color4, R.drawable.pen);
     }
 
 
@@ -91,8 +91,12 @@ public class MainActivity extends AppCompatActivity {
                 //Let's get the created sub item by its index
                 final View view = item.getSubItemView(i);
 
+                if (i == item.getSubItemsCount() - 1) {
+                    configureSubItem(item, view, subItems[i], true);
+                } else {
+                    configureSubItem(item, view, subItems[i], false);
+                }
                 //Let's set some values in
-                configureSubItem(item, view, subItems[i]);
             }
 
             item.findViewById(R.id.add_more_sub_items).setOnClickListener(new View.OnClickListener() {
@@ -134,22 +138,48 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void configureSubItem(final ExpandingItem item, final View view, String subTitle) {
+    private void configureSubItem(final ExpandingItem item, final View view, String subTitle, boolean isLastItem) {
         final TextView tv = view.findViewById(R.id.sub_title);
 
         tv.setText(subTitle);
 
-        view.findViewById(R.id.remove_sub_item).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (tv.getPaintFlags() == 1297) {
-                    item.removeSubItem(view);
+        if (tv.getText() == "Add a new sub-task") {
+            ImageView removeSubImg = view.findViewById(R.id.remove_sub_item);
+            removeSubImg.setImageDrawable(getResources().getDrawable(R.drawable.add_black));
+        }
+
+        if (isLastItem) {
+            view.findViewById(R.id.remove_sub_item).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showInsertDialog(new OnItemCreated() {
+                        @Override
+                        public void itemCreated(String title) {
+                            View newSubItem = item.createSubItem(item.getSubItemsCount() - 1);
+                            configureSubItem(item, newSubItem, title, false);
+                        }
+                    }, view);
                 }
-                else {
-                    tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            });
+        }
+        else {
+            view.findViewById(R.id.remove_sub_item).setOnClickListener(new View.OnClickListener() {
+                ImageView removeSub = view.findViewById(R.id.remove_sub_item);
+
+                @Override
+                public void onClick(View v) {
+                    if (tv.getPaintFlags() == 1297) {
+                        removeSub.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_black));
+                        tv.setPaintFlags(tv.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
+//                        item.removeSubItem(view);
+                    }
+                    else {
+                        removeSub.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_complete_black));
+                        tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     private void showInsertDialog(final OnItemCreated positive, View view) {
@@ -160,7 +190,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 positive.itemCreated(text.getText().toString());
@@ -356,12 +385,31 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (!editing) {
             for (int i = 0; i < expandingList.getItemsCount(); i++) {
-                View view = expandingList.getItemByIndex(i);
+                final View view = expandingList.getItemByIndex(i);
                 ImageView deleteImg = view.findViewById(R.id.remove_item);
+
+                for (int j = 0; j <= ((ExpandingItem) view).getSubItemsCount() - 2; j++) {
+                    final View subView = ((ExpandingItem) view).getSubItemView(j);
+                    final ExpandingItem subItem = ((ExpandingItem) view);
+
+                    ImageView subImg = subView.findViewById(R.id.remove_sub_item);
+                    subImg.setImageDrawable(getResources().getDrawable(R.drawable.clear_black));
+                    subImg.startAnimation(animShake);
+
+                    subImg.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            subItem.removeSubItem(subView);
+                        }
+                    });
+                }
+
+
                 deleteImg.setVisibility(View.VISIBLE);
                 item.setIcon(R.drawable.done_black);
 
                 deleteImg.startAnimation(animShake);
+
             }
 
             editing = true;
@@ -372,6 +420,24 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < expandingList.getItemsCount(); i++) {
                 View view = expandingList.getItemByIndex(i);
                 ImageView deleteImg = view.findViewById(R.id.remove_item);
+
+                for (int j = 0; j < ((ExpandingItem) view).getSubItemsCount() - 1; j++) {
+                    View subView = ((ExpandingItem) view).getSubItemView(j);
+                    ImageView subImg = subView.findViewById(R.id.remove_sub_item);
+
+                    final TextView tv = subView.findViewById(R.id.sub_title);
+
+                    if (tv.getPaintFlags() == 1297) {
+                        subImg.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_complete_black));
+                    }
+                    else {
+                        subImg.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_black));
+                    }
+
+                    subImg.clearAnimation();
+
+                }
+
                 deleteImg.clearAnimation();
                 deleteImg.setVisibility(View.GONE);
                 item.setIcon(R.drawable.pen_black);

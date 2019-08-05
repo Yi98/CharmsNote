@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+
 <androidx.constraintlayout.widget.ConstraintLayout
     android:id="@+id/root_view"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -20,26 +21,37 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         android:elevation="4dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="To Do List"
-        android:textAllCaps="true"
-        android:textSize="20dp"
-        android:textColor="@color/black"
-        android:fontFamily="sans-serif-light"
-        android:layout_gravity="center"
-        android:id="@+id/toolbar_title" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="To Do List"
+            android:textAllCaps="true"
+            android:textSize="20dp"
+            android:textColor="@color/black"
+            android:fontFamily="sans-serif-light"
+            android:layout_gravity="center"
+            android:id="@+id/toolbar_title" />
 
     </androidx.appcompat.widget.Toolbar>
 
-    <com.diegodobelo.expandingview.ExpandingList
-        android:id="@+id/expanding_list_main"
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_marginTop="55dp"
+        app:layout_constraintLeft_toLeftOf="parent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         app:layout_constraintTop_toBottomOf="@id/my_toolbar"
-        tools:layout_editor_absoluteX="6dp" />
+        >
 
+
+        <com.diegodobelo.expandingview.ExpandingList
+            android:id="@+id/expanding_list_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintTop_toTopOf="@id/scrollView"
+            tools:layout_editor_absoluteX="6dp" />
+
+    </ScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
@@ -55,3 +67,5 @@
         android:layout_margin="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
