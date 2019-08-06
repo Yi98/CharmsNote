@@ -6,11 +6,16 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.widget.NestedScrollView;
 import androidx.transition.TransitionManager;
 
+import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -19,6 +24,7 @@ import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -36,8 +42,11 @@ import com.takusemba.spotlight.shape.Circle;
 import com.takusemba.spotlight.target.SimpleTarget;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
+
+import static java.security.AccessController.getContext;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,12 +55,27 @@ public class MainActivity extends AppCompatActivity {
     private ExpandingList expandingList;
     private boolean editing = false;
     private ScrollView scrollView;
-
+    private TaskDbHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        dbHelper = new TaskDbHelper(MainActivity.this);
+
+
+        List<Task> tasks = dbHelper.getAllNotes();
+
+        floatingActionButton = findViewById(R.id.fab);
+        toolbar = findViewById(R.id.my_toolbar);
+
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+
+        floatingActionButton.setOnClickListener(clickListener);
 
         setupSpotlight();
 
@@ -75,15 +99,9 @@ public class MainActivity extends AppCompatActivity {
 
         createItems();
 
-        floatingActionButton = findViewById(R.id.fab);
-        toolbar = findViewById(R.id.my_toolbar);
-
-        setSupportActionBar(toolbar);
-
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-
-        floatingActionButton.setOnClickListener(clickListener);
+        for (int i=0; i<dbHelper.getNotesCount(); i++) {
+            addItem(tasks.get(i).getNote(), new String[]{"Computer System", "Intro to programming", "Add a new sub-task"}, tasks.get(i).getColor(), R.drawable.pen);
+        }
     }
 
 
@@ -96,6 +114,8 @@ public class MainActivity extends AppCompatActivity {
     private void addItem(String title, String[] subItems, int colorRes, int iconRes) {
         //Let's create an item with R.layout.expanding_layout
         final ExpandingItem item = expandingList.createNewItem(R.layout.expanding_layout);
+        final TextView oriTitle = item.findViewById(R.id.title);
+//        final EditText editTitle = item.findViewById(R.id.editText);
 
         //If item creation is successful, let's configure it
         if (item != null) {
@@ -103,6 +123,31 @@ public class MainActivity extends AppCompatActivity {
             item.setIndicatorIconRes(iconRes);
             //It is possible to get any view inside the inflated layout. Let's set the text in the item
             ((TextView) item.findViewById(R.id.title)).setText(title);
+
+
+            // update title code
+//            ((TextView) item.findViewById(R.id.title)).setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    oriTitle.setVisibility(View.GONE);
+//                    editTitle.setVisibility(View.VISIBLE);
+//
+//                    editTitle.setText(oriTitle.getText());
+//
+//                    editTitle.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//                        @Override
+//                        public void onFocusChange(View view, boolean b) {
+//                            if (!b) {
+//                                oriTitle.setText(editTitle.getText());
+//                                oriTitle.setVisibility(View.VISIBLE);
+//                                editTitle.setVisibility(View.GONE);
+//                            }
+//                        }
+//                    });
+//
+//                }
+//            });
+
 
             //We can create items in batch.
             item.createSubItems(subItems.length);
@@ -314,6 +359,8 @@ public class MainActivity extends AppCompatActivity {
                                 default:
                                     colorId = R.color.white;
                             }
+
+                            long id = dbHelper.insertNote(newItem, colorId);
 
                             addItem(newItem, new String[]{"Add a new sub-task"}, colorId, R.drawable.pen);
                         }

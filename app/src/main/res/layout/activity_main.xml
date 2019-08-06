@@ -49,6 +49,9 @@
             android:id="@+id/expanding_list_main"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusableInTouchMode="true"
+            android:focusable="true"
             app:layout_constraintTop_toTopOf="@id/scrollView"
             tools:layout_editor_absoluteX="6dp" />
 
