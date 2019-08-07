@@ -52,14 +52,10 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         String concatTasks = convertArrayToString(subtasks);
         String concatStatus = convertArrayToString(status);
 
-        Log.d("hlb", "sub:" + concatTasks);
-        Log.d("hlb", "stat: " + concatTasks);
-
         values.put(Task.COLUMN_TASK, note);
         values.put(Task.COLUMN_COLOR, color);
         values.put(Task.COLUMN_SUBTASKS, concatTasks);
         values.put(Task.COLUMN_STATUS, concatStatus);
-
 
         // insert row
         long id = db.insert(Task.TABLE_NAME, null, values);
