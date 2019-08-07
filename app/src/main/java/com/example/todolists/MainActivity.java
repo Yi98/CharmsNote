@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         createItems();
 
         for (int i=0; i<dbHelper.getNotesCount(); i++) {
-            String[] subtasks = Task.convertStringToArray(tasks.get(i).getSubtasks());
+            ArrayList<String> subtasks = dbHelper.convertStringToArray(tasks.get(i).getSubtasks());
 
             addItem(tasks.get(i).getNote(), subtasks, tasks.get(i).getColor(), R.drawable.pen);
         }
@@ -110,12 +110,23 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void createItems() {
-        addItem("Homework", new String[]{"Computer System", "Intro to programming", "Add a new sub-task"}, R.color.color1, R.drawable.pen);
-        addItem("Grocery", new String[]{"Banana", "Eggs", "Chicken Breast", "Add a new sub-task"}, R.color.color3, R.drawable.pen);
+        ArrayList<String> homeworks = new ArrayList<>();
+        homeworks.add("Computer System");
+        homeworks.add("Intro to programming");
+        homeworks.add("Add a new sub-task");
+
+        ArrayList<String> grocery = new ArrayList<>();
+        grocery.add("Banana");
+        grocery.add("Eggs");
+        grocery.add("Add a new sub-task");
+
+
+        addItem("Homework", homeworks, R.color.color1, R.drawable.pen);
+        addItem("Grocery", grocery, R.color.color3, R.drawable.pen);
     }
 
 
-    private void addItem(String title, String[] subItems, int colorRes, int iconRes) {
+    private void addItem(String title, ArrayList<String> subItems, int colorRes, int iconRes) {
         //Let's create an item with R.layout.expanding_layout
         final ExpandingItem item = expandingList.createNewItem(R.layout.expanding_layout);
         List<Task> tasks = dbHelper.getAllNotes();
@@ -168,15 +179,15 @@ public class MainActivity extends AppCompatActivity {
 
 
             //We can create items in batch.
-            item.createSubItems(subItems.length);
+            item.createSubItems(subItems.size());
             for (int i = 0; i < item.getSubItemsCount(); i++) {
                 //Let's get the created sub item by its index
                 final View view = item.getSubItemView(i);
 
                 if (i == item.getSubItemsCount() - 1) {
-                    configureSubItem(item, view, subItems[i], true);
+                    configureSubItem(item, view, subItems.get(i), true);
                 } else {
-                    configureSubItem(item, view, subItems[i], false);
+                    configureSubItem(item, view, subItems.get(i), false);
                 }
                 //Let's set some values in
             }
@@ -280,12 +291,25 @@ public class MainActivity extends AppCompatActivity {
                 View temp = (View) grandparent;
 
                 TextView hiddenId = temp.findViewById(R.id.hiddenDbId);
-                Log.d("hlb", hiddenId.getText().toString());
+
+                int id = Integer.parseInt(hiddenId.getText().toString());
 
                 // TODO: 6/8/2019 update task get position from list
 
-//                Task task = new Task()
-//                dbHelper.updateNote()
+                Log.d("hlb", "lol");
+
+
+                Task oldTask = dbHelper.getNote(id);
+
+
+
+                ArrayList<String> subTasks = dbHelper.convertStringToArray(oldTask.getSubtasks());
+                subTasks.add(text.getText().toString());
+                String concatTasks = dbHelper.convertArrayToString(subTasks);
+
+
+                Task updatedTask = new Task(1, oldTask.getNote(), oldTask.getColor(), concatTasks);
+                dbHelper.updateNote(updatedTask);
             }
         });
 
@@ -389,9 +413,12 @@ public class MainActivity extends AppCompatActivity {
                                     colorId = R.color.white;
                             }
 
-                            long id = dbHelper.insertNote(newItem, colorId, new String[]{"Add a new sub-task"});
+                            ArrayList<String> starter = new ArrayList<>();
+                            starter.add("Add a new sub-task");
 
-                            addItem(newItem, new String[]{"Add a new sub-task"}, colorId, R.drawable.pen);
+                            long id = dbHelper.insertNote(newItem, colorId, starter);
+
+                            addItem(newItem, starter, colorId, R.drawable.pen);
                         }
 
                         @Override

@@ -1,5 +1,9 @@
 package com.example.todolists;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class Task {
     public static final String TABLE_NAME = "tasks";
 
@@ -12,8 +16,6 @@ public class Task {
     private String task;
     private int color;
     private String subtasks;
-
-    public static String strSeparator = "__,__";
 
     // Create table SQL query
     public static final String CREATE_TABLE =
@@ -46,6 +48,11 @@ public class Task {
         return color;
     }
 
+    public String getSubtasks() {
+        return subtasks;
+    }
+
+
     public void setSubtasks(String subtasks) {
         this.subtasks = subtasks;
     }
@@ -60,27 +67,6 @@ public class Task {
 
     public void setColor(int color) {
         this.color = color;
-    }
-
-    public String getSubtasks() {
-        return subtasks;
-    }
-
-    public static String convertArrayToString(String[] array){
-        String str = "";
-        for (int i = 0;i<array.length; i++) {
-            str = str+array[i];
-            // Do not append comma at the end of last element
-            if(i<array.length-1){
-                str = str+strSeparator;
-            }
-        }
-        return str;
-    }
-
-    public static String[] convertStringToArray(String str){
-        String[] arr = str.split(strSeparator);
-        return arr;
     }
 
 

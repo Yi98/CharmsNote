@@ -8,15 +8,19 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
 
 public class TaskDbHelper extends SQLiteOpenHelper {
 
     // Database Version
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
 
     // Database Name
     private static final String DATABASE_NAME = "tasks_db";
+
+    public static String strSeparator = "__,__";
 
 
     public TaskDbHelper(Context context) {
@@ -39,13 +43,13 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long insertNote(String note, int color, String[] subtasks) {
+    public long insertNote(String note, int color, ArrayList<String> subtasks) {
         // get writable database as we want to write data
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
 
-        String concatTasks = Task.convertArrayToString(subtasks);
+        String concatTasks = convertArrayToString(subtasks);
 
         values.put(Task.COLUMN_TASK, note);
         values.put(Task.COLUMN_COLOR, color);
@@ -67,7 +71,7 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(Task.TABLE_NAME,
-                new String[]{Task.COLUMN_ID, Task.COLUMN_TASK},
+                new String[]{Task.COLUMN_ID, Task.COLUMN_TASK, Task.COLUMN_COLOR, Task.COLUMN_SUBTASKS},
                 Task.COLUMN_ID + "=?",
                 new String[]{String.valueOf(id)}, null, null, null, null);
 
@@ -135,6 +139,9 @@ public class TaskDbHelper extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(Task.COLUMN_TASK, note.getNote());
+        values.put(Task.COLUMN_COLOR, note.getColor());
+        values.put(Task.COLUMN_SUBTASKS, note.getSubtasks());
+
 
         // updating row
         return db.update(Task.TABLE_NAME, values, Task.COLUMN_ID + " = ?",
@@ -146,5 +153,23 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         db.delete(Task.TABLE_NAME, Task.COLUMN_ID + " = ?",
                 new String[]{String.valueOf(note.getId())});
         db.close();
+    }
+
+
+    public static String convertArrayToString(ArrayList<String> array){
+        String str = "";
+        for (int i = 0;i<array.size(); i++) {
+            str = str+array.get(i);
+            // Do not append comma at the end of last element
+            if(i<array.size()-1){
+                str = str+strSeparator;
+            }
+        }
+        return str;
+    }
+
+    public static ArrayList<String> convertStringToArray(String str){
+        ArrayList<String> arr = new ArrayList<String>(Arrays.asList(str.split(strSeparator)));
+        return arr;
     }
 }
