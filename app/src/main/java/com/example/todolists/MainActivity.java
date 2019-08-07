@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
@@ -47,10 +48,14 @@ public class MainActivity extends AppCompatActivity {
     private ScrollView scrollView;
     private TaskDbHelper dbHelper;
 
+    private SharedPreferences prefs = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        prefs = getSharedPreferences("com.ngyi.todolists", MODE_PRIVATE);
 
         dbHelper = new TaskDbHelper(MainActivity.this);
 
@@ -66,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         floatingActionButton.setOnClickListener(clickListener);
-
-        setupSpotlight();
 
         expandingList = findViewById(R.id.expanding_list_main);
         scrollView = findViewById(R.id.scrollView);
@@ -93,6 +96,20 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<String> subtasks = dbHelper.convertStringToArray(tasks.get(i).getSubtasks());
 
             addItem(tasks.get(i).getNote(), subtasks, tasks.get(i).getColor(), R.drawable.pen);
+        }
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (prefs.getBoolean("firstrun", true)) {
+            // Do first run stuff here then set 'firstrun' as false
+            // using the following line to edit/commit prefs
+            setupSpotlight();
+
+            prefs.edit().putBoolean("firstrun", false).commit();
         }
     }
 
@@ -241,26 +258,6 @@ public class MainActivity extends AppCompatActivity {
         Task currentTask = dbHelper.getNote(id);
         ArrayList<String> statusList = dbHelper.convertStringToArray(currentTask.getStatus());
 
-
-        Log.d("hlb", "Status" + statusList.size());
-
-        //// TODO: 7/8/2019 fix here
-
-//        for (int i=0; i<statusList.size(); i++) {
-//
-//            Log.d("hlb", statusList.get(i));
-//
-//            if (statusList.get(i).equalsIgnoreCase("false")) {
-//                Log.d("hlb", "false - run");
-//                removeSub.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_black));
-//                tv.setPaintFlags(tv.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
-//            }
-//            else if (statusList.get(i).equalsIgnoreCase("true")){
-//                Log.d("hlb", "true - run");
-//                removeSub.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_complete_black));
-//                tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-//            }
-//        }
 
         if (statusList.get(index).equalsIgnoreCase("false")) {
             Log.d("hlb", "false - run");
