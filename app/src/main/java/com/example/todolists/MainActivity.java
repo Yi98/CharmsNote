@@ -260,19 +260,15 @@ public class MainActivity extends AppCompatActivity {
         TextView hiddenId = temp.findViewById(R.id.hiddenDbId);
         int id = Integer.parseInt(hiddenId.getText().toString());
 
-//        Log.d("hlb", ""+id);
-
         Task currentTask = dbHelper.getNote(id);
         ArrayList<String> statusList = dbHelper.convertStringToArray(currentTask.getStatus());
 
 
         if (statusList.get(index).equalsIgnoreCase("false")) {
-            Log.d("hlb", "false - run");
             removeSub.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_black));
             tv.setPaintFlags(tv.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
         }
         else if (statusList.get(index).equalsIgnoreCase("true")){
-            Log.d("hlb", "true - run");
             removeSub.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_complete_black));
             tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         }
@@ -597,6 +593,44 @@ public class MainActivity extends AppCompatActivity {
                     subImg.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            ViewParent parent = subView.getParent();
+                            ViewParent grandparent = ((ViewGroup) parent).getParent();
+                            View temp = (View) grandparent;
+
+                            TextView hiddenId = temp.findViewById(R.id.hiddenDbId);
+                            TextView subtask = subView.findViewById(R.id.sub_title);
+
+                            String subtitle =  subtask.getText().toString();
+                            int id = Integer.parseInt(hiddenId.getText().toString());
+
+                            Task oldTask = dbHelper.getNote(id);
+
+                            ArrayList<String> subTasks = dbHelper.convertStringToArray(oldTask.getSubtasks());
+                            ArrayList<String> subStatus = dbHelper.convertStringToArray(oldTask.getStatus());
+
+//                            Log.d("hlb", "subtasks"+oldTask.getSubtasks());
+//                            Log.d("hlb", "status"+oldTask.getStatus());
+
+
+                            for (int i=0; i<subTasks.size(); i++) {
+
+                                if (subtitle.equalsIgnoreCase(subTasks.get(i))) {
+                                    subTasks.remove(i);
+                                    subStatus.remove(i);
+                                    break;
+                                }
+                            }
+
+                            String concatTasks = dbHelper.convertArrayToString(subTasks);
+                            String concatStatus = dbHelper.convertArrayToString(subStatus);
+
+                            Log.d("hlb", "Subtitle " + concatTasks);
+                            Log.d("hlb", "other " + concatStatus);
+
+
+                            Task updatedTask = new Task(oldTask.getId(), oldTask.getNote(), oldTask.getColor(), concatTasks, concatStatus);
+
+                            dbHelper.updateNote(updatedTask);
                             subItem.removeSubItem(subView);
                         }
                     });
