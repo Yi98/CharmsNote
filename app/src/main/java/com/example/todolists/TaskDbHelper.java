@@ -152,6 +152,7 @@ public class TaskDbHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(note.getId())});
     }
 
+
     public void deleteNote(Task note) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(Task.TABLE_NAME, Task.COLUMN_ID + " = ?",

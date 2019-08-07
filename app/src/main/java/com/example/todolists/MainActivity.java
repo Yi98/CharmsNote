@@ -216,6 +216,13 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             expandingList.removeItem(item);
+
+                            TextView hiddenId = item.findViewById(R.id.hiddenDbId);
+                            int id = Integer.parseInt(hiddenId.getText().toString());
+                            Log.d("hlb", ""+id);
+
+                            final Task deleteTask = dbHelper.getNote(id);
+                            dbHelper.deleteNote(deleteTask);
                         }
                     });
                     builder.setNegativeButton(android.R.string.cancel, null);
@@ -307,7 +314,6 @@ public class MainActivity extends AppCompatActivity {
                         checked = true;
                     }
 
-                    // TODO: 7/8/2019 update task status
 
                     ViewParent parent = view.getParent();
                     ViewParent grandparent = ((ViewGroup) parent).getParent();
@@ -395,6 +401,7 @@ public class MainActivity extends AppCompatActivity {
 
     private View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
+
         public void onClick(View v) {
             if (editing) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -567,8 +574,6 @@ public class MainActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
         ExpandingList expandingList = findViewById(R.id.expanding_list_main);
         final Animation animShake = AnimationUtils.loadAnimation(this, R.anim.rotate);
 
@@ -583,6 +588,7 @@ public class MainActivity extends AppCompatActivity {
                     final ExpandingItem subItem = ((ExpandingItem) view);
 
                     ImageView subImg = subView.findViewById(R.id.remove_sub_item);
+
                     subImg.setImageDrawable(getResources().getDrawable(R.drawable.clear_black));
                     subImg.startAnimation(animShake);
 
