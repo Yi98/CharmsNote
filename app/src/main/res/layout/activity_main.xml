@@ -37,7 +37,7 @@
 
     <ScrollView
         android:id="@+id/scrollView"
-        android:layout_marginTop="55dp"
+        android:layout_marginTop="60dp"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -20,6 +20,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -100,7 +102,9 @@ public class MainActivity extends AppCompatActivity {
         createItems();
 
         for (int i=0; i<dbHelper.getNotesCount(); i++) {
-            addItem(tasks.get(i).getNote(), new String[]{"Computer System", "Intro to programming", "Add a new sub-task"}, tasks.get(i).getColor(), R.drawable.pen);
+            String[] subtasks = Task.convertStringToArray(tasks.get(i).getSubtasks());
+
+            addItem(tasks.get(i).getNote(), subtasks, tasks.get(i).getColor(), R.drawable.pen);
         }
     }
 
@@ -114,7 +118,10 @@ public class MainActivity extends AppCompatActivity {
     private void addItem(String title, String[] subItems, int colorRes, int iconRes) {
         //Let's create an item with R.layout.expanding_layout
         final ExpandingItem item = expandingList.createNewItem(R.layout.expanding_layout);
-        final TextView oriTitle = item.findViewById(R.id.title);
+        List<Task> tasks = dbHelper.getAllNotes();
+
+//        final TextView oriTitle = item.findViewById(R.id.title);
+
 //        final EditText editTitle = item.findViewById(R.id.editText);
 
         //If item creation is successful, let's configure it
@@ -147,6 +154,17 @@ public class MainActivity extends AppCompatActivity {
 //
 //                }
 //            });
+
+            TextView hiddennId = item.findViewById(R.id.hiddenDbId);
+
+            for (int i=0; i<dbHelper.getNotesCount(); i++) {
+                if (title.equalsIgnoreCase(tasks.get(i).getNote())) {
+                    hiddennId.setText(Integer.toString(tasks.get(i).getId()));
+                }
+                else {
+                    hiddennId.setText("None");
+                }
+            }
 
 
             //We can create items in batch.
@@ -245,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showInsertDialog(final OnItemCreated positive, View view) {
+    private void showInsertDialog(final OnItemCreated positive, final View view) {
         final EditText text = new EditText(this);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(text);
@@ -256,6 +274,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 positive.itemCreated(text.getText().toString());
+
+                ViewParent parent = view.getParent();
+                ViewParent grandparent = ((ViewGroup) parent).getParent();
+                View temp = (View) grandparent;
+
+                TextView hiddenId = temp.findViewById(R.id.hiddenDbId);
+                Log.d("hlb", hiddenId.getText().toString());
+
+                // TODO: 6/8/2019 update task get position from list
+
+//                Task task = new Task()
+//                dbHelper.updateNote()
             }
         });
 
@@ -284,7 +314,6 @@ public class MainActivity extends AppCompatActivity {
                 builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
                     }
                 });
                 builder.show();
@@ -360,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
                                     colorId = R.color.white;
                             }
 
-                            long id = dbHelper.insertNote(newItem, colorId);
+                            long id = dbHelper.insertNote(newItem, colorId, new String[]{"Add a new sub-task"});
 
                             addItem(newItem, new String[]{"Add a new sub-task"}, colorId, R.drawable.pen);
                         }

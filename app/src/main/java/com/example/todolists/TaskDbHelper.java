@@ -13,7 +13,7 @@ import java.util.List;
 public class TaskDbHelper extends SQLiteOpenHelper {
 
     // Database Version
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 2;
 
     // Database Name
     private static final String DATABASE_NAME = "tasks_db";
@@ -39,14 +39,17 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long insertNote(String note, int color) {
+    public long insertNote(String note, int color, String[] subtasks) {
         // get writable database as we want to write data
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
 
+        String concatTasks = Task.convertArrayToString(subtasks);
+
         values.put(Task.COLUMN_TASK, note);
         values.put(Task.COLUMN_COLOR, color);
+        values.put(Task.COLUMN_SUBTASKS, concatTasks);
 
 
         // insert row
@@ -75,7 +78,8 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         Task note = new Task(
                 cursor.getInt(cursor.getColumnIndex(Task.COLUMN_ID)),
                 cursor.getString(cursor.getColumnIndex(Task.COLUMN_TASK)),
-                cursor.getInt(cursor.getColumnIndex(Task.COLUMN_COLOR))
+                cursor.getInt(cursor.getColumnIndex(Task.COLUMN_COLOR)),
+                cursor.getString(cursor.getColumnIndex(Task.COLUMN_SUBTASKS))
                 );
 
         // close the db connection
@@ -100,6 +104,7 @@ public class TaskDbHelper extends SQLiteOpenHelper {
                 note.setId(cursor.getInt(cursor.getColumnIndex(Task.COLUMN_ID)));
                 note.setNote(cursor.getString(cursor.getColumnIndex(Task.COLUMN_TASK)));
                 note.setColor(cursor.getInt(cursor.getColumnIndex(Task.COLUMN_COLOR)));
+                note.setSubtasks(cursor.getString(cursor.getColumnIndex(Task.COLUMN_SUBTASKS)));
 
                 notes.add(note);
             } while (cursor.moveToNext());
