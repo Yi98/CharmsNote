@@ -608,9 +608,6 @@ public class MainActivity extends AppCompatActivity {
                             ArrayList<String> subTasks = dbHelper.convertStringToArray(oldTask.getSubtasks());
                             ArrayList<String> subStatus = dbHelper.convertStringToArray(oldTask.getStatus());
 
-//                            Log.d("hlb", "subtasks"+oldTask.getSubtasks());
-//                            Log.d("hlb", "status"+oldTask.getStatus());
-
 
                             for (int i=0; i<subTasks.size(); i++) {
 
