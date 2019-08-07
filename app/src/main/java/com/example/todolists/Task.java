@@ -11,11 +11,13 @@ public class Task {
     public static final String COLUMN_TASK = "task";
     public static final String COLUMN_COLOR = "color";
     public static final String COLUMN_SUBTASKS = "subtasks";
+    public static final String COLUMN_STATUS = "status";
 
     private int id;
     private String task;
     private int color;
     private String subtasks;
+    private String status;
 
     // Create table SQL query
     public static final String CREATE_TABLE =
@@ -23,17 +25,19 @@ public class Task {
                     + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + COLUMN_TASK + " TEXT,"
                     + COLUMN_COLOR + " INTEGER,"
-                    + COLUMN_SUBTASKS + " TEXT"
+                    + COLUMN_SUBTASKS + " TEXT,"
+                    + COLUMN_STATUS + " TEXT"
                     + ")";
 
     public Task() {
     }
 
-    public Task(int id, String task, int color, String subtasks) {
+    public Task(int id, String task, int color, String subtasks, String status) {
         this.id = id;
         this.task = task;
         this.color = color;
         this.subtasks = subtasks;
+        this.status = status;
     }
 
     public int getId() {
@@ -52,6 +56,10 @@ public class Task {
         return subtasks;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
 
     public void setSubtasks(String subtasks) {
         this.subtasks = subtasks;
@@ -67,6 +75,10 @@ public class Task {
 
     public void setColor(int color) {
         this.color = color;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
 

@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
             ((TextView) item.findViewById(R.id.title)).setText(title);
 
 
+
             // update title code
 //            ((TextView) item.findViewById(R.id.title)).setOnClickListener(new View.OnClickListener() {
 //                @Override
@@ -154,11 +155,13 @@ public class MainActivity extends AppCompatActivity {
 //                }
 //            });
 
-            TextView hiddennId = item.findViewById(R.id.hiddenDbId);
+            TextView hiddennId = (TextView)item.findViewById(R.id.hiddenDbId);
+
 
             for (int i=0; i<dbHelper.getNotesCount(); i++) {
                 if (title.equalsIgnoreCase(tasks.get(i).getNote())) {
                     hiddennId.setText(Integer.toString(tasks.get(i).getId()));
+                    break;
                 }
                 else {
                     hiddennId.setText("None");
@@ -171,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < item.getSubItemsCount(); i++) {
                 //Let's get the created sub item by its index
                 final View view = item.getSubItemView(i);
+
 
                 if (i == item.getSubItemsCount() - 1) {
                     configureSubItem(item, view, subItems.get(i), true);
@@ -256,6 +260,10 @@ public class MainActivity extends AppCompatActivity {
                         removeSub.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_complete_black));
                         tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                     }
+
+                    // TODO: 7/8/2019 update task status
+//                    Task updatedTask = new Task(oldTask.getId(), oldTask.getNote(), oldTask.getColor(), concatTasks, oldTask.getStatus());
+//                    dbHelper.updateNote(updatedTask);
                 }
             });
         }
@@ -281,18 +289,15 @@ public class MainActivity extends AppCompatActivity {
 
                 int id = Integer.parseInt(hiddenId.getText().toString());
 
-                // TODO: 6/8/2019 update task get position from list
-
                 Task oldTask = dbHelper.getNote(id);
-
-
 
                 ArrayList<String> subTasks = dbHelper.convertStringToArray(oldTask.getSubtasks());
                 subTasks.add(subTasks.size()-1, text.getText().toString());
+
                 String concatTasks = dbHelper.convertArrayToString(subTasks);
 
 
-                Task updatedTask = new Task(1, oldTask.getNote(), oldTask.getColor(), concatTasks);
+                Task updatedTask = new Task(id, oldTask.getNote(), oldTask.getColor(), concatTasks, oldTask.getStatus());
                 dbHelper.updateNote(updatedTask);
             }
         });
@@ -397,12 +402,16 @@ public class MainActivity extends AppCompatActivity {
                                     colorId = R.color.white;
                             }
 
-                            ArrayList<String> starter = new ArrayList<>();
-                            starter.add("Add a new sub-task");
+                            ArrayList<String> starterSub = new ArrayList<>();
+                            ArrayList<String> starterStatus = new ArrayList<>();
 
-                            long id = dbHelper.insertNote(newItem, colorId, starter);
+                            starterSub.add("Add a new sub-task");
+                            starterStatus.add("true");
 
-                            addItem(newItem, starter, colorId, R.drawable.pen);
+
+                            long id = dbHelper.insertNote(newItem, colorId, starterSub, starterStatus);
+
+                            addItem(newItem, starterSub, colorId, R.drawable.pen);
                         }
 
                         @Override
@@ -520,7 +529,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             editing = true;
-            Toast.makeText(MainActivity.this, "Edit mode", Toast.LENGTH_LONG).show();
             return true;
 
         } else if (editing) {
@@ -579,7 +587,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             editing = false;
-            Toast.makeText(MainActivity.this, "Safe mode", Toast.LENGTH_LONG).show();
         }
 
         return super.onOptionsItemSelected(item);

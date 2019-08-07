@@ -15,7 +15,7 @@ import java.util.List;
 public class TaskDbHelper extends SQLiteOpenHelper {
 
     // Database Version
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 1;
 
     // Database Name
     private static final String DATABASE_NAME = "tasks_db";
@@ -43,17 +43,22 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long insertNote(String note, int color, ArrayList<String> subtasks) {
+    public long insertNote(String note, int color, ArrayList<String> subtasks, ArrayList<String> status) {
         // get writable database as we want to write data
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
 
         String concatTasks = convertArrayToString(subtasks);
+        String concatStatus = convertArrayToString(status);
+
+        Log.d("hlb", "sub:" + concatTasks);
+        Log.d("hlb", "stat: " + concatTasks);
 
         values.put(Task.COLUMN_TASK, note);
         values.put(Task.COLUMN_COLOR, color);
         values.put(Task.COLUMN_SUBTASKS, concatTasks);
+        values.put(Task.COLUMN_STATUS, concatStatus);
 
 
         // insert row
@@ -71,7 +76,7 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(Task.TABLE_NAME,
-                new String[]{Task.COLUMN_ID, Task.COLUMN_TASK, Task.COLUMN_COLOR, Task.COLUMN_SUBTASKS},
+                new String[]{Task.COLUMN_ID, Task.COLUMN_TASK, Task.COLUMN_COLOR, Task.COLUMN_SUBTASKS, Task.COLUMN_STATUS},
                 Task.COLUMN_ID + "=?",
                 new String[]{String.valueOf(id)}, null, null, null, null);
 
@@ -83,8 +88,9 @@ public class TaskDbHelper extends SQLiteOpenHelper {
                 cursor.getInt(cursor.getColumnIndex(Task.COLUMN_ID)),
                 cursor.getString(cursor.getColumnIndex(Task.COLUMN_TASK)),
                 cursor.getInt(cursor.getColumnIndex(Task.COLUMN_COLOR)),
-                cursor.getString(cursor.getColumnIndex(Task.COLUMN_SUBTASKS))
-                );
+                cursor.getString(cursor.getColumnIndex(Task.COLUMN_SUBTASKS)),
+                cursor.getString(cursor.getColumnIndex(Task.COLUMN_STATUS))
+        );
 
         // close the db connection
         cursor.close();
@@ -109,6 +115,7 @@ public class TaskDbHelper extends SQLiteOpenHelper {
                 note.setNote(cursor.getString(cursor.getColumnIndex(Task.COLUMN_TASK)));
                 note.setColor(cursor.getInt(cursor.getColumnIndex(Task.COLUMN_COLOR)));
                 note.setSubtasks(cursor.getString(cursor.getColumnIndex(Task.COLUMN_SUBTASKS)));
+                note.setStatus(cursor.getString(cursor.getColumnIndex(Task.COLUMN_STATUS)));
 
                 notes.add(note);
             } while (cursor.moveToNext());
@@ -141,6 +148,7 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         values.put(Task.COLUMN_TASK, note.getNote());
         values.put(Task.COLUMN_COLOR, note.getColor());
         values.put(Task.COLUMN_SUBTASKS, note.getSubtasks());
+        values.put(Task.COLUMN_STATUS, note.getStatus());
 
 
         // updating row
@@ -167,6 +175,7 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         }
         return str;
     }
+
 
     public static ArrayList<String> convertStringToArray(String str){
         ArrayList<String> arr = new ArrayList<String>(Arrays.asList(str.split(strSeparator)));
