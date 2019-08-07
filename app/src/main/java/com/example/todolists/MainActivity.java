@@ -3,33 +3,22 @@ package com.example.todolists;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.widget.NestedScrollView;
-import androidx.transition.TransitionManager;
+import androidx.core.content.ContextCompat;
 
-import android.content.ContentValues;
 import android.content.DialogInterface;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,7 +37,6 @@ import java.util.List;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
-import static java.security.AccessController.getContext;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -231,17 +219,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     private void configureSubItem(final ExpandingItem item, final View view, String subTitle, boolean isLastItem) {
         final TextView tv = view.findViewById(R.id.sub_title);
 
         tv.setText(subTitle);
 
-        if (tv.getText() == "Add a new sub-task") {
-            ImageView removeSubImg = view.findViewById(R.id.remove_sub_item);
-            removeSubImg.setImageDrawable(getResources().getDrawable(R.drawable.add_black));
-        }
-
         if (isLastItem) {
+            ImageView removeSubImg = view.findViewById(R.id.remove_sub_item);
+            removeSubImg.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.add_black));
+
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -296,15 +283,12 @@ public class MainActivity extends AppCompatActivity {
 
                 // TODO: 6/8/2019 update task get position from list
 
-                Log.d("hlb", "lol");
-
-
                 Task oldTask = dbHelper.getNote(id);
 
 
 
                 ArrayList<String> subTasks = dbHelper.convertStringToArray(oldTask.getSubtasks());
-                subTasks.add(text.getText().toString());
+                subTasks.add(subTasks.size()-1, text.getText().toString());
                 String concatTasks = dbHelper.convertArrayToString(subTasks);
 
 
