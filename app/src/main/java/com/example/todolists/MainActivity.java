@@ -5,13 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -19,23 +16,18 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.diegodobelo.expandingview.ExpandingItem;
 import com.diegodobelo.expandingview.ExpandingList;
@@ -55,10 +47,8 @@ import petrov.kristiyan.colorpicker.ColorPicker;
 public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton floatingActionButton;
-    private Toolbar toolbar;
     private ExpandingList expandingList;
     private boolean editing = false;
-    private ScrollView scrollView;
     private TaskDbHelper dbHelper;
 
     private SharedPreferences prefs = null;
@@ -79,17 +69,19 @@ public class MainActivity extends AppCompatActivity {
         List<Task> tasks = dbHelper.getAllTasks();
 
         floatingActionButton = findViewById(R.id.fab);
-        toolbar = findViewById(R.id.my_toolbar);
+        Toolbar toolbar = findViewById(R.id.my_toolbar);
 
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        }
 
         floatingActionButton.setOnClickListener(clickListener);
 
         expandingList = findViewById(R.id.expanding_list_main);
-        scrollView = findViewById(R.id.scrollView);
+        ScrollView scrollView = findViewById(R.id.scrollView);
 
         scrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
@@ -106,10 +98,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-//        createItems();
-
         for (int i=0; i<dbHelper.getTasksCount(); i++) {
-            ArrayList<String> subtasks = dbHelper.convertStringToArray(tasks.get(i).getSubtasks());
+            ArrayList<String> subtasks = TaskDbHelper.convertStringToArray(tasks.get(i).getSubtasks());
 
             addItem(tasks.get(i).getTask(), subtasks, tasks.get(i).getColor(), R.drawable.whatshot);
         }
@@ -128,23 +118,6 @@ public class MainActivity extends AppCompatActivity {
 //            prefs.edit().putBoolean("firstrun", false).commit();
 //        }
 //    }
-
-
-    private void createItems() {
-        ArrayList<String> homeworks = new ArrayList<>();
-        homeworks.add("Computer System");
-        homeworks.add("Intro to programming");
-        homeworks.add("Add a new sub-task");
-
-        ArrayList<String> grocery = new ArrayList<>();
-        grocery.add("Banana");
-        grocery.add("Eggs");
-        grocery.add("Add a new sub-task");
-
-
-        addItem("Homework", homeworks, R.color.color1, R.drawable.whatshot);
-        addItem("Grocery", grocery, R.color.color3, R.drawable.whatshot);
-    }
 
 
     private void addItem(String title, ArrayList<String> subItems, int colorRes, int iconRes) {
@@ -473,7 +446,6 @@ public class MainActivity extends AppCompatActivity {
                     final String newItem = edittext.getText().toString();
 
                     ColorPicker colorPicker = new ColorPicker(MainActivity.this);
-                    colorPicker.show();
                     colorPicker.setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
                         @Override
                         public void onChooseColor(int position, int color) {
@@ -526,8 +498,9 @@ public class MainActivity extends AppCompatActivity {
                                     colorId = R.color.color15;
                                     break;
                                 default:
-                                    colorId = R.color.white;
+                                    colorId = R.color.color1;
                             }
+
 
                             ArrayList<String> starterSub = new ArrayList<>();
                             ArrayList<String> starterStatus = new ArrayList<>();
@@ -548,9 +521,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
 
-                    // add color sheet
-
-
+                    colorPicker.show();
                 }
             });
 

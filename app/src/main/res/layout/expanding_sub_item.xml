@@ -10,20 +10,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:textColor="@color/black"
         android:textSize="18sp"
-        android:gravity="center_vertical|left"/>
+        android:gravity="center_vertical|start"/>
 
     <ImageView
         android:id="@+id/remove_sub_item"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
         android:padding="16dp"
         app:srcCompat="@drawable/checkbox_black"/>
 
