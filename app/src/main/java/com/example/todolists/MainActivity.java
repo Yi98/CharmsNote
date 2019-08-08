@@ -7,11 +7,14 @@ import androidx.core.content.ContextCompat;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -60,7 +63,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        prefs = getSharedPreferences("com.ngyi.todolists", MODE_PRIVATE);
+        setupSpotlight();
+
+//        prefs = getSharedPreferences("com.ngyi.todolists", MODE_PRIVATE);
 
         dbHelper = new TaskDbHelper(MainActivity.this);
 
@@ -100,23 +105,23 @@ public class MainActivity extends AppCompatActivity {
         for (int i=0; i<dbHelper.getTasksCount(); i++) {
             ArrayList<String> subtasks = dbHelper.convertStringToArray(tasks.get(i).getSubtasks());
 
-            addItem(tasks.get(i).getTask(), subtasks, tasks.get(i).getColor(), R.drawable.pen);
+            addItem(tasks.get(i).getTask(), subtasks, tasks.get(i).getColor(), R.drawable.whatshot);
         }
     }
 
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (prefs.getBoolean("firstrun", true)) {
-            // Do first run stuff here then set 'firstrun' as false
-            // using the following line to edit/commit prefs
-            setupSpotlight();
-
-            prefs.edit().putBoolean("firstrun", false).commit();
-        }
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        if (prefs.getBoolean("firstrun", true)) {
+//            // Do first run stuff here then set 'firstrun' as false
+//            // using the following line to edit/commit prefs
+//            setupSpotlight();
+//
+//            prefs.edit().putBoolean("firstrun", false).commit();
+//        }
+//    }
 
 
     private void createItems() {
@@ -131,8 +136,8 @@ public class MainActivity extends AppCompatActivity {
         grocery.add("Add a new sub-task");
 
 
-        addItem("Homework", homeworks, R.color.color1, R.drawable.pen);
-        addItem("Grocery", grocery, R.color.color3, R.drawable.pen);
+        addItem("Homework", homeworks, R.color.color1, R.drawable.whatshot);
+        addItem("Grocery", grocery, R.color.color3, R.drawable.whatshot);
     }
 
 
@@ -527,12 +532,13 @@ public class MainActivity extends AppCompatActivity {
 
                             long id = dbHelper.insertTask(newItem, colorId, starterSub, starterStatus);
 
-                            addItem(newItem, starterSub, colorId, R.drawable.pen);
+                            addItem(newItem, starterSub, colorId, R.drawable.whatshot);
                         }
 
                         @Override
                         public void onCancel(){
                             // put code
+                            return;
                         }
                     });
 
@@ -581,14 +587,35 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private int getNavigationBarHeight() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            DisplayMetrics metrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(metrics);
+            int usableHeight = metrics.heightPixels;
+            getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
+            int realHeight = metrics.heightPixels;
+            if (realHeight > usableHeight)
+                return realHeight - usableHeight;
+            else
+                return 0;
+        }
+        return 0;
+    }
+
 
     private void setupSpotlight() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels + getNavigationBarHeight();
+        int width = displayMetrics.widthPixels;
+
+
         SimpleTarget simpleTarget = new SimpleTarget.Builder(this)
-                .setPoint(965f, 1678f)
+                .setPoint(width - 115, height - 240)
                 .setShape(new Circle(90f)) // or RoundedRectangle()
                 .setTitle("Add new task")
                 .setDescription("You can add more tasks later")
-                .setOverlayPoint(400f, 1300f)
+                .setOverlayPoint(width - 750, height - 550)
                 .setOnSpotlightStartedListener(new OnTargetStateChangedListener<SimpleTarget>() {
                     @Override
                     public void onStarted(SimpleTarget target) {
