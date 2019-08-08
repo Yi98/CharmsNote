@@ -9,6 +9,9 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +23,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -327,9 +331,11 @@ public class MainActivity extends AppCompatActivity {
                     for (int i=0; i<subTasks.size()-1; i++) {
                         if (subTasks.get(i).equalsIgnoreCase(tv.getText().toString()) && checked) {
                             subStatus.set(i, "true");
+                            break;
                         }
                         else if (subTasks.get(i).equalsIgnoreCase(tv.getText().toString()) && !checked) {
                             subStatus.set(i, "false");
+                            break;
                         }
                     }
 
@@ -348,7 +354,6 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(text);
         builder.setTitle("Add a sub-item");
-
 
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
@@ -387,7 +392,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        builder.show();
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+
+        text.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Check if edittext is empty
+                if (TextUtils.isEmpty(s)) {
+                    // Disable ok button
+                    ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+
+                } else {
+                    // Something into edit text. Enable the button.
+                    ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                }
+
+            }
+        });
     }
 
     interface OnItemCreated {
@@ -415,10 +447,12 @@ public class MainActivity extends AppCompatActivity {
             AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
 
             final EditText edittext = new EditText(MainActivity.this);
+
 //            alert.setMessage("How about clean the room?");
             alert.setTitle("Add a new task");
 
             alert.setView(edittext);
+
 
             alert.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
@@ -511,7 +545,35 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            alert.show();
+            final AlertDialog dialog = alert.create();
+            dialog.show();
+
+            ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+
+            edittext.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
+
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                    // Check if edittext is empty
+                    if (TextUtils.isEmpty(s)) {
+                        // Disable ok button
+                        ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+
+                    } else {
+                        // Something into edit text. Enable the button.
+                        ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                    }
+
+                }
+            });
 
         }
     };
@@ -620,10 +682,6 @@ public class MainActivity extends AppCompatActivity {
 
                             String concatTasks = dbHelper.convertArrayToString(subTasks);
                             String concatStatus = dbHelper.convertArrayToString(subStatus);
-
-                            Log.d("hlb", "Subtitle " + concatTasks);
-                            Log.d("hlb", "other " + concatStatus);
-
 
                             Task updatedTask = new Task(oldTask.getId(), oldTask.getNote(), oldTask.getColor(), concatTasks, concatStatus);
 
