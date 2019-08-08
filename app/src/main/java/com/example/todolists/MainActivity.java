@@ -24,6 +24,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -286,13 +287,15 @@ public class MainActivity extends AppCompatActivity {
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showInsertDialog(new OnItemCreated() {
-                        @Override
-                        public void itemCreated(String title) {
-                            View newSubItem = item.createSubItem(item.getSubItemsCount() - 1);
-                            configureSubItem(item, newSubItem, title, false, item.getSubItemsCount()-2);
-                        }
-                    }, view);
+                    if (!editing) {
+                        showInsertDialog(new OnItemCreated() {
+                            @Override
+                            public void itemCreated(String title) {
+                                View newSubItem = item.createSubItem(item.getSubItemsCount() - 1);
+                                configureSubItem(item, newSubItem, title, false, item.getSubItemsCount()-2);
+                            }
+                        }, view);
+                    }
                 }
             });
         }
@@ -641,11 +644,19 @@ public class MainActivity extends AppCompatActivity {
                 final View view = expandingList.getItemByIndex(i);
                 ImageView deleteImg = view.findViewById(R.id.remove_item);
 
-                for (int j = 0; j <= ((ExpandingItem) view).getSubItemsCount() - 2; j++) {
+                for (int j = 0; j <= ((ExpandingItem) view).getSubItemsCount() - 1; j++) {
                     final View subView = ((ExpandingItem) view).getSubItemView(j);
                     final ExpandingItem subItem = ((ExpandingItem) view);
 
                     ImageView subImg = subView.findViewById(R.id.remove_sub_item);
+
+                    if (j == ((ExpandingItem) view).getSubItemsCount() - 1) {
+                        TextView subtitle = subView.findViewById(R.id.sub_title);
+                        subImg.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.disabled));
+
+                        subtitle.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.disabled));
+                        break;
+                    }
 
                     subImg.setImageDrawable(getResources().getDrawable(R.drawable.clear_black));
                     subImg.startAnimation(animShake);
@@ -707,11 +718,20 @@ public class MainActivity extends AppCompatActivity {
                 View view = expandingList.getItemByIndex(i);
                 ImageView deleteImg = view.findViewById(R.id.remove_item);
 
-                for (int j = 0; j < ((ExpandingItem) view).getSubItemsCount() - 1; j++) {
-                    View subView = ((ExpandingItem) view).getSubItemView(j);
+                for (int j = 0; j <= ((ExpandingItem) view).getSubItemsCount() - 1; j++) {
+                    final View subView = ((ExpandingItem) view).getSubItemView(j);
                     final ImageView subImg = subView.findViewById(R.id.remove_sub_item);
 
                     final TextView tv = subView.findViewById(R.id.sub_title);
+
+                    if (j == ((ExpandingItem) view).getSubItemsCount() - 1) {
+                        TextView subtitle = subView.findViewById(R.id.sub_title);
+
+                        subImg.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.black));
+                        subtitle.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.black));
+                        break;
+                    }
+
 
                     if (tv.getPaintFlags() == 1297) {
                         subImg.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_complete_black));
