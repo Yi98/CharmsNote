@@ -44,7 +44,7 @@ public class Task {
         return id;
     }
 
-    public String getNote() {
+    public String getTask() {
         return task;
     }
 
@@ -65,7 +65,7 @@ public class Task {
         this.subtasks = subtasks;
     }
 
-    public void setNote(String task) {
+    public void setTask(String task) {
         this.task = task;
     }
 

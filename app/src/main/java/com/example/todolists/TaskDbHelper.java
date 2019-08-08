@@ -30,7 +30,7 @@ public class TaskDbHelper extends SQLiteOpenHelper {
     // Creating Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // create notes table
+        // create tasks table
         db.execSQL(Task.CREATE_TABLE);
     }
 
@@ -43,7 +43,7 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long insertNote(String note, int color, ArrayList<String> subtasks, ArrayList<String> status) {
+    public long insertTask(String task, int color, ArrayList<String> subtasks, ArrayList<String> status) {
         // get writable database as we want to write data
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -52,7 +52,7 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         String concatTasks = convertArrayToString(subtasks);
         String concatStatus = convertArrayToString(status);
 
-        values.put(Task.COLUMN_TASK, note);
+        values.put(Task.COLUMN_TASK, task);
         values.put(Task.COLUMN_COLOR, color);
         values.put(Task.COLUMN_SUBTASKS, concatTasks);
         values.put(Task.COLUMN_STATUS, concatStatus);
@@ -67,7 +67,7 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         return id;
     }
 
-    public Task getNote(long id) {
+    public Task getTask(long id) {
         // get readable database as we are not inserting anything
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -79,8 +79,8 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         if (cursor != null)
             cursor.moveToFirst();
 
-        // prepare note object
-        Task note = new Task(
+        // prepare task object
+        Task task = new Task(
                 cursor.getInt(cursor.getColumnIndex(Task.COLUMN_ID)),
                 cursor.getString(cursor.getColumnIndex(Task.COLUMN_TASK)),
                 cursor.getInt(cursor.getColumnIndex(Task.COLUMN_COLOR)),
@@ -91,11 +91,11 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         // close the db connection
         cursor.close();
 
-        return note;
+        return task;
     }
 
-    public List<Task> getAllNotes() {
-        List<Task> notes = new ArrayList<>();
+    public List<Task> getAllTasks() {
+        List<Task> tasks = new ArrayList<>();
 
         // Select All Query
         String selectQuery = "SELECT  * FROM " + Task.TABLE_NAME;
@@ -106,25 +106,25 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                Task note = new Task();
-                note.setId(cursor.getInt(cursor.getColumnIndex(Task.COLUMN_ID)));
-                note.setNote(cursor.getString(cursor.getColumnIndex(Task.COLUMN_TASK)));
-                note.setColor(cursor.getInt(cursor.getColumnIndex(Task.COLUMN_COLOR)));
-                note.setSubtasks(cursor.getString(cursor.getColumnIndex(Task.COLUMN_SUBTASKS)));
-                note.setStatus(cursor.getString(cursor.getColumnIndex(Task.COLUMN_STATUS)));
+                Task task = new Task();
+                task.setId(cursor.getInt(cursor.getColumnIndex(Task.COLUMN_ID)));
+                task.setTask(cursor.getString(cursor.getColumnIndex(Task.COLUMN_TASK)));
+                task.setColor(cursor.getInt(cursor.getColumnIndex(Task.COLUMN_COLOR)));
+                task.setSubtasks(cursor.getString(cursor.getColumnIndex(Task.COLUMN_SUBTASKS)));
+                task.setStatus(cursor.getString(cursor.getColumnIndex(Task.COLUMN_STATUS)));
 
-                notes.add(note);
+                tasks.add(task);
             } while (cursor.moveToNext());
         }
 
         // close db connection
         db.close();
 
-        // return notes list
-        return notes;
+        // return tasks list
+        return tasks;
     }
 
-    public int getNotesCount() {
+    public int getTasksCount() {
         String countQuery = "SELECT  * FROM " + Task.TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
@@ -137,26 +137,26 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public int updateNote(Task note) {
+    public int updateTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(Task.COLUMN_TASK, note.getNote());
-        values.put(Task.COLUMN_COLOR, note.getColor());
-        values.put(Task.COLUMN_SUBTASKS, note.getSubtasks());
-        values.put(Task.COLUMN_STATUS, note.getStatus());
+        values.put(Task.COLUMN_TASK, task.getTask());
+        values.put(Task.COLUMN_COLOR, task.getColor());
+        values.put(Task.COLUMN_SUBTASKS, task.getSubtasks());
+        values.put(Task.COLUMN_STATUS, task.getStatus());
 
 
         // updating row
         return db.update(Task.TABLE_NAME, values, Task.COLUMN_ID + " = ?",
-                new String[]{String.valueOf(note.getId())});
+                new String[]{String.valueOf(task.getId())});
     }
 
 
-    public void deleteNote(Task note) {
+    public void deleteTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(Task.TABLE_NAME, Task.COLUMN_ID + " = ?",
-                new String[]{String.valueOf(note.getId())});
+                new String[]{String.valueOf(task.getId())});
         db.close();
     }
 

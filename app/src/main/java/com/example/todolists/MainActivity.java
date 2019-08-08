@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         dbHelper = new TaskDbHelper(MainActivity.this);
 
 
-        List<Task> tasks = dbHelper.getAllNotes();
+        List<Task> tasks = dbHelper.getAllTasks();
 
         floatingActionButton = findViewById(R.id.fab);
         toolbar = findViewById(R.id.my_toolbar);
@@ -96,10 +96,10 @@ public class MainActivity extends AppCompatActivity {
 
 //        createItems();
 
-        for (int i=0; i<dbHelper.getNotesCount(); i++) {
+        for (int i=0; i<dbHelper.getTasksCount(); i++) {
             ArrayList<String> subtasks = dbHelper.convertStringToArray(tasks.get(i).getSubtasks());
 
-            addItem(tasks.get(i).getNote(), subtasks, tasks.get(i).getColor(), R.drawable.pen);
+            addItem(tasks.get(i).getTask(), subtasks, tasks.get(i).getColor(), R.drawable.pen);
         }
     }
 
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
     private void addItem(String title, ArrayList<String> subItems, int colorRes, int iconRes) {
         //Let's create an item with R.layout.expanding_layout
         final ExpandingItem item = expandingList.createNewItem(R.layout.expanding_layout);
-        List<Task> tasks = dbHelper.getAllNotes();
+        List<Task> tasks = dbHelper.getAllTasks();
 
 //        final TextView oriTitle = item.findViewById(R.id.title);
 
@@ -179,8 +179,8 @@ public class MainActivity extends AppCompatActivity {
             TextView hiddenId = (TextView)item.findViewById(R.id.hiddenDbId);
 
 
-            for (int i=0; i<dbHelper.getNotesCount(); i++) {
-                if (title.equalsIgnoreCase(tasks.get(i).getNote())) {
+            for (int i=0; i<dbHelper.getTasksCount(); i++) {
+                if (title.equalsIgnoreCase(tasks.get(i).getTask())) {
                     hiddenId.setText(Integer.toString(tasks.get(i).getId()));
                     break;
                 }
@@ -225,8 +225,8 @@ public class MainActivity extends AppCompatActivity {
                             int id = Integer.parseInt(hiddenId.getText().toString());
                             Log.d("hlb", ""+id);
 
-                            final Task deleteTask = dbHelper.getNote(id);
-                            dbHelper.deleteNote(deleteTask);
+                            final Task deleteTask = dbHelper.getTask(id);
+                            dbHelper.deleteTask(deleteTask);
                         }
                     });
                     builder.setNegativeButton(android.R.string.cancel, null);
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
         TextView hiddenId = temp.findViewById(R.id.hiddenDbId);
         int id = Integer.parseInt(hiddenId.getText().toString());
 
-        Task currentTask = dbHelper.getNote(id);
+        Task currentTask = dbHelper.getTask(id);
         ArrayList<String> statusList = dbHelper.convertStringToArray(currentTask.getStatus());
 
 
@@ -322,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
                     TextView hiddenId = temp.findViewById(R.id.hiddenDbId);
                     int id = Integer.parseInt(hiddenId.getText().toString());
 
-                    Task oldTask = dbHelper.getNote(id);
+                    Task oldTask = dbHelper.getTask(id);
 
                     ArrayList<String> subTasks = dbHelper.convertStringToArray(oldTask.getSubtasks());
                     ArrayList<String> subStatus = dbHelper.convertStringToArray(oldTask.getStatus());
@@ -342,8 +342,8 @@ public class MainActivity extends AppCompatActivity {
                     String concatStatus = dbHelper.convertArrayToString(subStatus);
 
 
-                    Task updatedTask = new Task(oldTask.getId(), oldTask.getNote(), oldTask.getColor(), oldTask.getSubtasks(), concatStatus);
-                    dbHelper.updateNote(updatedTask);
+                    Task updatedTask = new Task(oldTask.getId(), oldTask.getTask(), oldTask.getColor(), oldTask.getSubtasks(), concatStatus);
+                    dbHelper.updateTask(updatedTask);
                 }
             });
         }
@@ -368,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
 
                 int id = Integer.parseInt(hiddenId.getText().toString());
 
-                Task oldTask = dbHelper.getNote(id);
+                Task oldTask = dbHelper.getTask(id);
 
                 ArrayList<String> subTasks = dbHelper.convertStringToArray(oldTask.getSubtasks());
                 ArrayList<String> subStatus = dbHelper.convertStringToArray(oldTask.getStatus());
@@ -380,8 +380,8 @@ public class MainActivity extends AppCompatActivity {
                 String concatTasks = dbHelper.convertArrayToString(subTasks);
                 String concatStatus = dbHelper.convertArrayToString(subStatus);
 
-                Task updatedTask = new Task(id, oldTask.getNote(), oldTask.getColor(), concatTasks, concatStatus);
-                dbHelper.updateNote(updatedTask);
+                Task updatedTask = new Task(id, oldTask.getTask(), oldTask.getColor(), concatTasks, concatStatus);
+                dbHelper.updateTask(updatedTask);
             }
         });
 
@@ -522,7 +522,7 @@ public class MainActivity extends AppCompatActivity {
                             starterStatus.add("null");
 
 
-                            long id = dbHelper.insertNote(newItem, colorId, starterSub, starterStatus);
+                            long id = dbHelper.insertTask(newItem, colorId, starterSub, starterStatus);
 
                             addItem(newItem, starterSub, colorId, R.drawable.pen);
                         }
@@ -665,7 +665,7 @@ public class MainActivity extends AppCompatActivity {
                             String subtitle =  subtask.getText().toString();
                             int id = Integer.parseInt(hiddenId.getText().toString());
 
-                            Task oldTask = dbHelper.getNote(id);
+                            Task oldTask = dbHelper.getTask(id);
 
                             ArrayList<String> subTasks = dbHelper.convertStringToArray(oldTask.getSubtasks());
                             ArrayList<String> subStatus = dbHelper.convertStringToArray(oldTask.getStatus());
@@ -683,9 +683,9 @@ public class MainActivity extends AppCompatActivity {
                             String concatTasks = dbHelper.convertArrayToString(subTasks);
                             String concatStatus = dbHelper.convertArrayToString(subStatus);
 
-                            Task updatedTask = new Task(oldTask.getId(), oldTask.getNote(), oldTask.getColor(), concatTasks, concatStatus);
+                            Task updatedTask = new Task(oldTask.getId(), oldTask.getTask(), oldTask.getColor(), concatTasks, concatStatus);
 
-                            dbHelper.updateNote(updatedTask);
+                            dbHelper.updateTask(updatedTask);
                             subItem.removeSubItem(subView);
                         }
                     });
