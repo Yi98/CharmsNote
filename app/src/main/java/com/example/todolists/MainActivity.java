@@ -5,10 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -16,11 +19,13 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
@@ -64,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         setupSpotlight();
+
 
 //        prefs = getSharedPreferences("com.ngyi.todolists", MODE_PRIVATE);
 
@@ -587,6 +593,13 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
+    public boolean hasNavBar (Resources resources)
+    {
+        int id = resources.getIdentifier("config_showNavigationBar", "bool", "android");
+        return id > 0 && resources.getBoolean(id);
+    }
+
     private int getNavigationBarHeight() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             DisplayMetrics metrics = new DisplayMetrics();
@@ -603,19 +616,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     private void setupSpotlight() {
+
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int height = displayMetrics.heightPixels + getNavigationBarHeight();
         int width = displayMetrics.widthPixels;
 
 
+
         SimpleTarget simpleTarget = new SimpleTarget.Builder(this)
-                .setPoint(width - 115, height - 240)
+                .setPoint(width - 115f, height - 240f)
                 .setShape(new Circle(90f)) // or RoundedRectangle()
                 .setTitle("Add new task")
                 .setDescription("You can add more tasks later")
-                .setOverlayPoint(width - 750, height - 550)
+                .setOverlayPoint(width - 750f, height - 550f)
                 .setOnSpotlightStartedListener(new OnTargetStateChangedListener<SimpleTarget>() {
                     @Override
                     public void onStarted(SimpleTarget target) {
@@ -668,11 +684,13 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (!editing) {
+            item.setIcon(R.drawable.done_black);
+            fab.hide();
+
             for (int i = 0; i < expandingList.getItemsCount(); i++) {
                 final View view = expandingList.getItemByIndex(i);
                 ImageView deleteImg = view.findViewById(R.id.remove_item);
 
-                fab.hide();
 
                 for (int j = 0; j <= ((ExpandingItem) view).getSubItemsCount() - 1; j++) {
                     final View subView = ((ExpandingItem) view).getSubItemView(j);
@@ -734,21 +752,20 @@ public class MainActivity extends AppCompatActivity {
 
 
                 deleteImg.setVisibility(View.VISIBLE);
-                item.setIcon(R.drawable.done_black);
-
                 deleteImg.startAnimation(animShake);
-
             }
 
             editing = true;
             return true;
 
         } else if (editing) {
+
+            fab.show();
+            item.setIcon(R.drawable.pen_black);
+
             for (int i = 0; i < expandingList.getItemsCount(); i++) {
                 View view = expandingList.getItemByIndex(i);
                 ImageView deleteImg = view.findViewById(R.id.remove_item);
-
-                fab.show();
 
                 for (int j = 0; j <= ((ExpandingItem) view).getSubItemsCount() - 1; j++) {
                     final View subView = ((ExpandingItem) view).getSubItemView(j);
@@ -806,7 +823,6 @@ public class MainActivity extends AppCompatActivity {
 
                 deleteImg.clearAnimation();
                 deleteImg.setVisibility(View.GONE);
-                item.setIcon(R.drawable.pen_black);
             }
 
             editing = false;
