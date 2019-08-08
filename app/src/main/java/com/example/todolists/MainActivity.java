@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                 if (i1 > i3) {
                     floatingActionButton.hide();
                 }
-                else if (i1< i3) {
+                else if (i1< i3  && !editing) {
                     floatingActionButton.show();
                 }
 
@@ -637,12 +637,15 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         ExpandingList expandingList = findViewById(R.id.expanding_list_main);
         final Animation animShake = AnimationUtils.loadAnimation(this, R.anim.rotate);
+        FloatingActionButton fab = findViewById(R.id.fab);
 
         //noinspection SimplifiableIfStatement
         if (!editing) {
             for (int i = 0; i < expandingList.getItemsCount(); i++) {
                 final View view = expandingList.getItemByIndex(i);
                 ImageView deleteImg = view.findViewById(R.id.remove_item);
+
+                fab.hide();
 
                 for (int j = 0; j <= ((ExpandingItem) view).getSubItemsCount() - 1; j++) {
                     final View subView = ((ExpandingItem) view).getSubItemView(j);
@@ -717,6 +720,8 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < expandingList.getItemsCount(); i++) {
                 View view = expandingList.getItemByIndex(i);
                 ImageView deleteImg = view.findViewById(R.id.remove_item);
+
+                fab.show();
 
                 for (int j = 0; j <= ((ExpandingItem) view).getSubItemsCount() - 1; j++) {
                     final View subView = ((ExpandingItem) view).getSubItemView(j);

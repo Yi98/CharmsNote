@@ -7,4 +7,4 @@
     android:pivotY="50%"
     android:repeatCount="infinite"
     android:repeatMode="reverse"
-    android:toDegrees="5" />
+    android:toDegrees="8" />
