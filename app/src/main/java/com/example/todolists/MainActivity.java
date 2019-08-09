@@ -3,20 +3,16 @@ package com.example.todolists;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
+import android.content.res.Configuration;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,8 +48,6 @@ public class MainActivity extends AppCompatActivity {
     private ExpandingList expandingList;
     private boolean editing = false;
     private TaskDbHelper dbHelper;
-    private boolean showedSpotlight = false;
-
 
     private SharedPreferences prefs = null;
 
@@ -62,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        prefs = getSharedPreferences("com.ngyi.todolists", MODE_PRIVATE);
+        prefs = getSharedPreferences("com.ngyi.todolists", MODE_PRIVATE);
 
         dbHelper = new TaskDbHelper(MainActivity.this);
 
@@ -107,19 +101,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//
-//        if (prefs.getBoolean("firstrun", true)) {
-//            // Do first run stuff here then set 'firstrun' as false
-//            // using the following line to edit/commit prefs
-//            setupSpotlight();
-//
-//            prefs.edit().putBoolean("firstrun", false).commit();
-//        }
-//    }
-
     @Override
     public void onWindowFocusChanged (boolean hasFocus) {
         int[] location = new int[2];
@@ -127,9 +108,9 @@ public class MainActivity extends AppCompatActivity {
         int width = location[0];
         int height = location[1];
 
-        if (!showedSpotlight) {
+        if (prefs.getBoolean("firstrun", true)) {
             setupSpotlight(width, height);
-            showedSpotlight = true;
+            prefs.edit().putBoolean("firstrun", false).commit();
         }
     }
 
@@ -580,12 +561,14 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void setupSpotlight(int width, int height) {
-        SimpleTarget simpleTarget = new SimpleTarget.Builder(this)
+        SimpleTarget simpleTarget = null;
+
+        SimpleTarget simpleTargetPotrait = new SimpleTarget.Builder(this)
                 .setPoint(width + 73, height + 73)
                 .setShape(new Circle(90f)) // or RoundedRectangle()
-                .setTitle("Add new task")
-                .setDescription("You can add more tasks later")
-                .setOverlayPoint(width - 650f, height - 250f)
+                .setTitle("Add a new task")
+//                .setDescription("You can add more tasks later")
+                .setOverlayPoint(width - 550f, height - 50f)
                 .setOnSpotlightStartedListener(new OnTargetStateChangedListener<SimpleTarget>() {
                     @Override
                     public void onStarted(SimpleTarget target) {
@@ -597,6 +580,31 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .build();
+
+        SimpleTarget simpleTargetLandscape = new SimpleTarget.Builder(this)
+                .setPoint(width - 3, height + 73)
+                .setShape(new Circle(90f)) // or RoundedRectangle()
+                .setTitle("Add a new task")
+//                .setDescription("You can add more tasks later")
+                .setOverlayPoint(width - 600f, height - 50f)
+                .setOnSpotlightStartedListener(new OnTargetStateChangedListener<SimpleTarget>() {
+                    @Override
+                    public void onStarted(SimpleTarget target) {
+                        // do something
+                    }
+                    @Override
+                    public void onEnded(SimpleTarget target) {
+                        // do something
+                    }
+                })
+                .build();
+
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+            simpleTarget = simpleTargetPotrait;
+        }
+        else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+            simpleTarget = simpleTargetLandscape;
+        }
 
         Spotlight.with(this)
                 .setOverlayColor(R.color.background)
