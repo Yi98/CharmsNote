@@ -3,12 +3,14 @@ package com.example.todolists;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -50,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private ExpandingList expandingList;
     private boolean editing = false;
     private TaskDbHelper dbHelper;
+    private boolean showedSpotlight = false;
+
 
     private SharedPreferences prefs = null;
 
@@ -57,9 +61,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        setupSpotlight();
-
 
 //        prefs = getSharedPreferences("com.ngyi.todolists", MODE_PRIVATE);
 
@@ -118,6 +119,19 @@ public class MainActivity extends AppCompatActivity {
 //            prefs.edit().putBoolean("firstrun", false).commit();
 //        }
 //    }
+
+    @Override
+    public void onWindowFocusChanged (boolean hasFocus) {
+        int[] location = new int[2];
+        floatingActionButton.getLocationOnScreen(location);
+        int width = location[0];
+        int height = location[1];
+
+        if (!showedSpotlight) {
+            setupSpotlight(width, height);
+            showedSpotlight = true;
+        }
+    }
 
 
     private void addItem(String title, ArrayList<String> subItems, int colorRes, int iconRes) {
@@ -565,44 +579,13 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
-    public boolean hasNavBar (Resources resources)
-    {
-        int id = resources.getIdentifier("config_showNavigationBar", "bool", "android");
-        return id > 0 && resources.getBoolean(id);
-    }
-
-    private int getNavigationBarHeight() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            DisplayMetrics metrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(metrics);
-            int usableHeight = metrics.heightPixels;
-            getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
-            int realHeight = metrics.heightPixels;
-            if (realHeight > usableHeight)
-                return realHeight - usableHeight;
-            else
-                return 0;
-        }
-        return 0;
-    }
-
-
-
-    private void setupSpotlight() {
-
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int height = displayMetrics.heightPixels + getNavigationBarHeight();
-        int width = displayMetrics.widthPixels;
-
-
-
+    private void setupSpotlight(int width, int height) {
         SimpleTarget simpleTarget = new SimpleTarget.Builder(this)
-                .setPoint(width - 115f, height - 240f)
+                .setPoint(width + 73, height + 73)
                 .setShape(new Circle(90f)) // or RoundedRectangle()
                 .setTitle("Add new task")
                 .setDescription("You can add more tasks later")
-                .setOverlayPoint(width - 750f, height - 550f)
+                .setOverlayPoint(width - 650f, height - 250f)
                 .setOnSpotlightStartedListener(new OnTargetStateChangedListener<SimpleTarget>() {
                     @Override
                     public void onStarted(SimpleTarget target) {
