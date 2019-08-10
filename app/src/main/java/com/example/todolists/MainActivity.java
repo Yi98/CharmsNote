@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (prefs.getBoolean("firstrun", true)) {
             setupSpotlight(width, height);
-            prefs.edit().putBoolean("firstrun", false).commit();
+            prefs.edit().putBoolean("firstrun", false).apply();
         }
     }
 
@@ -156,16 +156,13 @@ public class MainActivity extends AppCompatActivity {
 //                }
 //            });
 
-            TextView hiddenId = (TextView)item.findViewById(R.id.hiddenDbId);
+            TextView hiddenId = item.findViewById(R.id.hiddenDbId);
 
 
             for (int i=0; i<dbHelper.getTasksCount(); i++) {
                 if (title.equalsIgnoreCase(tasks.get(i).getTask())) {
                     hiddenId.setText(Integer.toString(tasks.get(i).getId()));
                     break;
-                }
-                else {
-                    hiddenId.setText("None");
                 }
             }
 
@@ -215,19 +212,22 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        item.setStateChangedListener(new ExpandingItem.OnItemStateChanged() {
-            ImageView addSubImg = item.findViewById(R.id.add_more_sub_items);
+        if (item != null) {
+            item.setStateChangedListener(new ExpandingItem.OnItemStateChanged() {
+                ImageView addSubImg = item.findViewById(R.id.add_more_sub_items);
 
-            @Override
-            public void itemCollapseStateChanged(boolean expanded) {
-                if (item.isExpanded()) {
-                    addSubImg.animate().rotation(180).start();
+                @Override
+                public void itemCollapseStateChanged(boolean expanded) {
+                    if (item.isExpanded()) {
+                        addSubImg.animate().rotation(180).start();
+                    }
+                    else {
+                        addSubImg.animate().rotation(0).start();
+                    }
                 }
-                else {
-                    addSubImg.animate().rotation(0).start();
-                }
-            }
-        });
+            });
+        }
+
     }
 
 
@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
         int id = Integer.parseInt(hiddenId.getText().toString());
 
         Task currentTask = dbHelper.getTask(id);
-        ArrayList<String> statusList = dbHelper.convertStringToArray(currentTask.getStatus());
+        ArrayList<String> statusList = TaskDbHelper.convertStringToArray(currentTask.getStatus());
 
 
         if (statusList.get(index).equalsIgnoreCase("false")) {
@@ -260,8 +260,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         if (isLastItem) {
-            ImageView removeSubImg = view.findViewById(R.id.remove_sub_item);
-            removeSubImg.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.add_black));
+            removeSub.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.add_black));
 
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -306,8 +305,8 @@ public class MainActivity extends AppCompatActivity {
 
                     Task oldTask = dbHelper.getTask(id);
 
-                    ArrayList<String> subTasks = dbHelper.convertStringToArray(oldTask.getSubtasks());
-                    ArrayList<String> subStatus = dbHelper.convertStringToArray(oldTask.getStatus());
+                    ArrayList<String> subTasks = TaskDbHelper.convertStringToArray(oldTask.getSubtasks());
+                    ArrayList<String> subStatus = TaskDbHelper.convertStringToArray(oldTask.getStatus());
 
                         if (subTasks.get(index).equalsIgnoreCase(tv.getText().toString()) && checked) {
                             subStatus.set(index, "true");
@@ -316,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
                             subStatus.set(index, "false");
                         }
 
-                    String concatStatus = dbHelper.convertArrayToString(subStatus);
+                    String concatStatus = TaskDbHelper.convertArrayToString(subStatus);
 
                     Log.d("hlb", oldTask.getSubtasks());
                     Log.d("hlb", concatStatus);
@@ -349,8 +348,8 @@ public class MainActivity extends AppCompatActivity {
 
                 Task oldTask = dbHelper.getTask(id);
 
-                ArrayList<String> subTasks = dbHelper.convertStringToArray(oldTask.getSubtasks());
-                ArrayList<String> subStatus = dbHelper.convertStringToArray(oldTask.getStatus());
+                ArrayList<String> subTasks = TaskDbHelper.convertStringToArray(oldTask.getSubtasks());
+                ArrayList<String> subStatus = TaskDbHelper.convertStringToArray(oldTask.getStatus());
 
                 subTasks.add(subTasks.size()-1, text.getText().toString());
                 subStatus.add(subStatus.size()-1, "false");
@@ -376,7 +375,7 @@ public class MainActivity extends AppCompatActivity {
         final AlertDialog dialog = builder.create();
         dialog.show();
 
-        ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 
         text.addTextChangedListener(new TextWatcher() {
             @Override
@@ -392,11 +391,11 @@ public class MainActivity extends AppCompatActivity {
                 // Check if edittext is empty
                 if (TextUtils.isEmpty(s)) {
                     // Disable ok button
-                    ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 
                 } else {
                     // Something into edit text. Enable the button.
-                    ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                 }
 
             }
@@ -528,7 +527,7 @@ public class MainActivity extends AppCompatActivity {
             final AlertDialog dialog = alert.create();
             dialog.show();
 
-            ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 
             edittext.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -545,11 +544,11 @@ public class MainActivity extends AppCompatActivity {
                     // Check if edittext is empty
                     if (TextUtils.isEmpty(s)) {
                         // Disable ok button
-                        ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 
                     } else {
                         // Something into edit text. Enable the button.
-                        ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                     }
 
                 }
@@ -688,14 +687,14 @@ public class MainActivity extends AppCompatActivity {
 
                             Task oldTask = dbHelper.getTask(id);
 
-                            ArrayList<String> subTasks = dbHelper.convertStringToArray(oldTask.getSubtasks());
-                            ArrayList<String> subStatus = dbHelper.convertStringToArray(oldTask.getStatus());
+                            ArrayList<String> subTasks = TaskDbHelper.convertStringToArray(oldTask.getSubtasks());
+                            ArrayList<String> subStatus = TaskDbHelper.convertStringToArray(oldTask.getStatus());
 
                             subTasks.remove(currentIndex);
                             subStatus.remove(currentIndex);
 
-                            String concatTasks = dbHelper.convertArrayToString(subTasks);
-                            String concatStatus = dbHelper.convertArrayToString(subStatus);
+                            String concatTasks = TaskDbHelper.convertArrayToString(subTasks);
+                            String concatStatus = TaskDbHelper.convertArrayToString(subStatus);
 
                             Log.d("hlb", concatTasks);
                             Log.d("hlb", concatStatus);
@@ -734,10 +733,8 @@ public class MainActivity extends AppCompatActivity {
                     final TextView tv = subView.findViewById(R.id.sub_title);
 
                     if (j == ((ExpandingItem) view).getSubItemsCount() - 1) {
-                        TextView subtitle = subView.findViewById(R.id.sub_title);
-
                         subImg.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.black));
-                        subtitle.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.black));
+                        tv.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.black));
                         break;
                     }
 
@@ -828,8 +825,8 @@ public class MainActivity extends AppCompatActivity {
 
                             Task oldTask = dbHelper.getTask(id);
 
-                            ArrayList<String> subTasks = dbHelper.convertStringToArray(oldTask.getSubtasks());
-                            ArrayList<String> subStatus = dbHelper.convertStringToArray(oldTask.getStatus());
+                            ArrayList<String> subTasks = TaskDbHelper.convertStringToArray(oldTask.getSubtasks());
+                            ArrayList<String> subStatus = TaskDbHelper.convertStringToArray(oldTask.getStatus());
 
                             if (subTasks.get(currentIndex).equalsIgnoreCase(tv.getText().toString()) && checked) {
                                 subStatus.set(currentIndex, "true");
@@ -838,7 +835,7 @@ public class MainActivity extends AppCompatActivity {
                                 subStatus.set(currentIndex, "false");
                             }
 
-                            String concatStatus = dbHelper.convertArrayToString(subStatus);
+                            String concatStatus = TaskDbHelper.convertArrayToString(subStatus);
 
                             Log.d("hlb", oldTask.getSubtasks());
                             Log.d("hlb", concatStatus);
