@@ -1,8 +1,4 @@
-package com.example.todolists;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+package com.ngyi.charmsnote;
 
 public class Task {
     public static final String TABLE_NAME = "tasks";

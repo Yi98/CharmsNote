@@ -1,4 +1,4 @@
-package com.example.todolists;
+package com.ngyi.charmsnote;
 
 import org.junit.Test;
 

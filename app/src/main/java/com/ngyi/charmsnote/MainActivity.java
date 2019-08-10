@@ -1,4 +1,4 @@
-package com.example.todolists;
+package com.ngyi.charmsnote;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -200,7 +199,6 @@ public class MainActivity extends AppCompatActivity {
 
                             TextView hiddenId = item.findViewById(R.id.hiddenDbId);
                             int id = Integer.parseInt(hiddenId.getText().toString());
-                            Log.d("hlb", ""+id);
 
                             final Task deleteTask = dbHelper.getTask(id);
                             dbHelper.deleteTask(deleteTask);
@@ -249,14 +247,13 @@ public class MainActivity extends AppCompatActivity {
 
 
         if (statusList.get(index).equalsIgnoreCase("false")) {
-            removeSub.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_black));
+            removeSub.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.checkbox_black));
             tv.setPaintFlags(tv.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
         }
         else if (statusList.get(index).equalsIgnoreCase("true")){
-            removeSub.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_complete_black));
+            removeSub.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.checkbox_complete_black));
             tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         }
-
 
 
         if (isLastItem) {
@@ -317,9 +314,6 @@ public class MainActivity extends AppCompatActivity {
 
                     String concatStatus = TaskDbHelper.convertArrayToString(subStatus);
 
-                    Log.d("hlb", oldTask.getSubtasks());
-                    Log.d("hlb", concatStatus);
-
                     Task updatedTask = new Task(oldTask.getId(), oldTask.getTask(), oldTask.getColor(), oldTask.getSubtasks(), concatStatus);
                     dbHelper.updateTask(updatedTask);
                 }
@@ -356,9 +350,6 @@ public class MainActivity extends AppCompatActivity {
 
                 String concatTasks = TaskDbHelper.convertArrayToString(subTasks);
                 String concatStatus = TaskDbHelper.convertArrayToString(subStatus);
-
-                Log.d("hlb", concatTasks);
-                Log.d("hlb", concatStatus);
 
                 Task updatedTask = new Task(id, oldTask.getTask(), oldTask.getColor(), concatTasks, concatStatus);
                 dbHelper.updateTask(updatedTask);
@@ -696,9 +687,6 @@ public class MainActivity extends AppCompatActivity {
                             String concatTasks = TaskDbHelper.convertArrayToString(subTasks);
                             String concatStatus = TaskDbHelper.convertArrayToString(subStatus);
 
-                            Log.d("hlb", concatTasks);
-                            Log.d("hlb", concatStatus);
-
                             Task updatedTask = new Task(oldTask.getId(), oldTask.getTask(), oldTask.getColor(), concatTasks, concatStatus);
 
                             dbHelper.updateTask(updatedTask);
@@ -791,9 +779,6 @@ public class MainActivity extends AppCompatActivity {
 
                             String concatStatus = TaskDbHelper.convertArrayToString(subStatus);
 
-                            Log.d("hlb", oldTask.getSubtasks());
-                            Log.d("hlb", concatStatus);
-
                             Task updatedTask = new Task(oldTask.getId(), oldTask.getTask(), oldTask.getColor(), oldTask.getSubtasks(), concatStatus);
                             dbHelper.updateTask(updatedTask);
                         }
@@ -836,9 +821,6 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             String concatStatus = TaskDbHelper.convertArrayToString(subStatus);
-
-                            Log.d("hlb", oldTask.getSubtasks());
-                            Log.d("hlb", concatStatus);
 
                             Task updatedTask = new Task(oldTask.getId(), oldTask.getTask(), oldTask.getColor(), oldTask.getSubtasks(), concatStatus);
                             dbHelper.updateTask(updatedTask);
