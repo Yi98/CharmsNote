@@ -111,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
             setupSpotlight(width, height);
             prefs.edit().putBoolean("firstrun", false).apply();
         }
+
+
     }
 
 
