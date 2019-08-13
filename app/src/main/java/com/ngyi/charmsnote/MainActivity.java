@@ -100,20 +100,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    public void onWindowFocusChanged (boolean hasFocus) {
-        int[] location = new int[2];
-        floatingActionButton.getLocationOnScreen(location);
-        int width = location[0];
-        int height = location[1];
-
-        if (prefs.getBoolean("firstrun", true)) {
-            setupSpotlight(width, height);
-            prefs.edit().putBoolean("firstrun", false).apply();
-        }
-
-
-    }
+//    @Override
+//    public void onWindowFocusChanged (boolean hasFocus) {
+//        int[] location = new int[2];
+//        floatingActionButton.getLocationOnScreen(location);
+//        int width = location[0];
+//        int height = location[1];
+//
+//        if (prefs.getBoolean("firstrun", true)) {
+//            setupSpotlight(width, height);
+//            prefs.edit().putBoolean("firstrun", false).apply();
+//        }
+//    }
 
 
     private void addItem(String title, ArrayList<String> subItems, int colorRes, int iconRes) {
