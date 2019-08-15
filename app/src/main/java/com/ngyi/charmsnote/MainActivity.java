@@ -106,50 +106,23 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    // add parent's item to expanding list
     private void addItem(String title, ArrayList<String> subItems, int colorRes, int iconRes) {
         // create an item with R.layout.expanding_layout
         final ExpandingItem item = expandingList.createNewItem(R.layout.expanding_layout);
         List<Task> tasks = dbHelper.getAllTasks();
 
-//        final TextView oriTitle = item.findViewById(R.id.title);
-
-//        final EditText editTitle = item.findViewById(R.id.editText);
-
         //If item creation is successful, let's configure it
         if (item != null) {
             item.setIndicatorColorRes(colorRes);
             item.setIndicatorIconRes(iconRes);
+
             //It is possible to get any view inside the inflated layout. Let's set the text in the item
             ((TextView) item.findViewById(R.id.title)).setText(title);
-
-
-
-            // update title code
-//            ((TextView) item.findViewById(R.id.title)).setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    oriTitle.setVisibility(View.GONE);
-//                    editTitle.setVisibility(View.VISIBLE);
-//
-//                    editTitle.setText(oriTitle.getText());
-//
-//                    editTitle.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//                        @Override
-//                        public void onFocusChange(View view, boolean b) {
-//                            if (!b) {
-//                                oriTitle.setText(editTitle.getText());
-//                                oriTitle.setVisibility(View.VISIBLE);
-//                                editTitle.setVisibility(View.GONE);
-//                            }
-//                        }
-//                    });
-//
-//                }
-//            });
-
             TextView hiddenId = item.findViewById(R.id.hiddenDbId);
 
-
+            // TODO: 15/8/2019 fix delete wrong parent item
+            // set hiddenId to each parent item
             for (int i=0; i<dbHelper.getTasksCount(); i++) {
                 if (title.equalsIgnoreCase(tasks.get(i).getTask())) {
                     hiddenId.setText(Integer.toString(tasks.get(i).getId()));
@@ -157,67 +130,77 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-
-            //We can create items in batch.
-            item.createSubItems(subItems.size());
-            for (int i = 0; i < item.getSubItemsCount(); i++) {
-                //Let's get the created sub item by its index
-                final View view = item.getSubItemView(i);
-
-                if (i == item.getSubItemsCount() - 1) {
-                    configureSubItem(item, view, subItems.get(i), true, item.getSubItemsCount()-1);
-                } else {
-                    configureSubItem(item, view, subItems.get(i), false, i);
-                }
-                //Let's set some values in
-            }
-
-            item.findViewById(R.id.add_more_sub_items).setOnClickListener(new View.OnClickListener() {
+            item.findViewById(R.id.arrow).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     item.toggleExpanded();
                 }
             });
 
-            item.findViewById(R.id.remove_item).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setTitle("Are you sure you want to remove?");
-                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            expandingList.removeItem(item);
+            setupSubItems(item, subItems);
+            setRemoveItemListener(item);
+            setExpandItemListener(item);
 
-                            TextView hiddenId = item.findViewById(R.id.hiddenDbId);
-                            int id = Integer.parseInt(hiddenId.getText().toString());
-
-                            final Task deleteTask = dbHelper.getTask(id);
-                            dbHelper.deleteTask(deleteTask);
-                        }
-                    });
-                    builder.setNegativeButton(android.R.string.cancel, null);
-                    builder.show();
-                }
-            });
         }
+    }
 
-        if (item != null) {
-            item.setStateChangedListener(new ExpandingItem.OnItemStateChanged() {
-                ImageView addSubImg = item.findViewById(R.id.add_more_sub_items);
 
-                @Override
-                public void itemCollapseStateChanged(boolean expanded) {
-                    if (item.isExpanded()) {
-                        addSubImg.animate().rotation(180).start();
-                    }
-                    else {
-                        addSubImg.animate().rotation(0).start();
-                    }
-                }
-            });
+    private void setupSubItems(ExpandingItem item, ArrayList<String> subItems) {
+        // create sub-items in batch.
+        item.createSubItems(subItems.size());
+
+        for (int i = 0; i < item.getSubItemsCount(); i++) {
+            // get the created sub item view by its index
+            final View view = item.getSubItemView(i);
+
+            if (i == item.getSubItemsCount() - 1) {
+                configureSubItem(item, view, subItems.get(i), true, item.getSubItemsCount()-1);
+            } else {
+                configureSubItem(item, view, subItems.get(i), false, i);
+            }
         }
+    }
 
+
+    private void setRemoveItemListener(final ExpandingItem item) {
+        item.findViewById(R.id.remove_item).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("Are you sure you want to remove?");
+                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        expandingList.removeItem(item);
+
+                        TextView hiddenId = item.findViewById(R.id.hiddenDbId);
+                        int id = Integer.parseInt(hiddenId.getText().toString());
+
+                        final Task deleteTask = dbHelper.getTask(id);
+                        dbHelper.deleteTask(deleteTask);
+                    }
+                });
+                builder.setNegativeButton(android.R.string.cancel, null);
+                builder.show();
+            }
+        });
+    }
+
+
+    private void setExpandItemListener(final ExpandingItem item) {
+        item.setStateChangedListener(new ExpandingItem.OnItemStateChanged() {
+            ImageView arrow = item.findViewById(R.id.arrow);
+
+            @Override
+            public void itemCollapseStateChanged(boolean expanded) {
+                if (item.isExpanded()) {
+                    arrow.animate().rotation(180).start();
+                }
+                else {
+                    arrow.animate().rotation(0).start();
+                }
+            }
+        });
     }
 
 
@@ -543,73 +526,6 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
-    private void setupSpotlight(int width, int height) {
-        SimpleTarget simpleTarget = null;
-
-        SimpleTarget simpleTargetPotrait = new SimpleTarget.Builder(this)
-                .setPoint(width + 73, height + 73)
-                .setShape(new Circle(90f)) // or RoundedRectangle()
-                .setTitle("Add a new task")
-//                .setDescription("You can add more tasks later")
-                .setOverlayPoint(width - 550f, height - 50f)
-                .setOnSpotlightStartedListener(new OnTargetStateChangedListener<SimpleTarget>() {
-                    @Override
-                    public void onStarted(SimpleTarget target) {
-                        // do something
-                    }
-                    @Override
-                    public void onEnded(SimpleTarget target) {
-                        // do something
-                    }
-                })
-                .build();
-
-        SimpleTarget simpleTargetLandscape = new SimpleTarget.Builder(this)
-                .setPoint(width - 3, height + 73)
-                .setShape(new Circle(90f)) // or RoundedRectangle()
-                .setTitle("Add a new task")
-//                .setDescription("You can add more tasks later")
-                .setOverlayPoint(width - 600f, height - 50f)
-                .setOnSpotlightStartedListener(new OnTargetStateChangedListener<SimpleTarget>() {
-                    @Override
-                    public void onStarted(SimpleTarget target) {
-                        // do something
-                    }
-                    @Override
-                    public void onEnded(SimpleTarget target) {
-                        // do something
-                    }
-                })
-                .build();
-
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
-            simpleTarget = simpleTargetPotrait;
-        }
-        else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-            simpleTarget = simpleTargetLandscape;
-        }
-
-        Spotlight.with(this)
-                .setOverlayColor(R.color.background)
-                .setDuration(1000L)
-                .setAnimation(new DecelerateInterpolator(2f))
-                .setTargets(simpleTarget)
-                .setClosedOnTouchedOutside(true)
-                .setOnSpotlightStateListener(new OnSpotlightStateChangedListener() {
-                    @Override
-                    public void onStarted() {
-//                        Toast.makeText(MainActivity.this, "spotlight is started", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onEnded() {
-
-//                        Toast.makeText(MainActivity.this, "spotlight is ended", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .start();
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -850,6 +766,75 @@ public class MainActivity extends AppCompatActivity {
 //            setupSpotlight(width, height);
 //            prefs.edit().putBoolean("firstrun", false).apply();
 //        }
+//    }
+
+
+
+//    private void setupSpotlight(int width, int height) {
+//        SimpleTarget simpleTarget = null;
+//
+//        SimpleTarget simpleTargetPotrait = new SimpleTarget.Builder(this)
+//                .setPoint(width + 73, height + 73)
+//                .setShape(new Circle(90f)) // or RoundedRectangle()
+//                .setTitle("Add a new task")
+////                .setDescription("You can add more tasks later")
+//                .setOverlayPoint(width - 550f, height - 50f)
+//                .setOnSpotlightStartedListener(new OnTargetStateChangedListener<SimpleTarget>() {
+//                    @Override
+//                    public void onStarted(SimpleTarget target) {
+//                        // do something
+//                    }
+//                    @Override
+//                    public void onEnded(SimpleTarget target) {
+//                        // do something
+//                    }
+//                })
+//                .build();
+//
+//        SimpleTarget simpleTargetLandscape = new SimpleTarget.Builder(this)
+//                .setPoint(width - 3, height + 73)
+//                .setShape(new Circle(90f)) // or RoundedRectangle()
+//                .setTitle("Add a new task")
+////                .setDescription("You can add more tasks later")
+//                .setOverlayPoint(width - 600f, height - 50f)
+//                .setOnSpotlightStartedListener(new OnTargetStateChangedListener<SimpleTarget>() {
+//                    @Override
+//                    public void onStarted(SimpleTarget target) {
+//                        // do something
+//                    }
+//                    @Override
+//                    public void onEnded(SimpleTarget target) {
+//                        // do something
+//                    }
+//                })
+//                .build();
+//
+//        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+//            simpleTarget = simpleTargetPotrait;
+//        }
+//        else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+//            simpleTarget = simpleTargetLandscape;
+//        }
+//
+//        Spotlight.with(this)
+//                .setOverlayColor(R.color.background)
+//                .setDuration(1000L)
+//                .setAnimation(new DecelerateInterpolator(2f))
+//                .setTargets(simpleTarget)
+//                .setClosedOnTouchedOutside(true)
+//                .setOnSpotlightStateListener(new OnSpotlightStateChangedListener() {
+//                    @Override
+//                    public void onStarted() {
+////                        Toast.makeText(MainActivity.this, "spotlight is started", Toast.LENGTH_SHORT).show();
+//                    }
+//
+//                    @Override
+//                    public void onEnded() {
+//
+////                        Toast.makeText(MainActivity.this, "spotlight is ended", Toast.LENGTH_SHORT).show();
+//                    }
+//                })
+//                .start();
 //    }
 
 }

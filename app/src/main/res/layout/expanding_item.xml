@@ -38,7 +38,7 @@
         <!--android:text="Sample" />-->
 
     <ImageView
-        android:id="@+id/add_more_sub_items"
+        android:id="@+id/arrow"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_alignParentEnd="true"
@@ -53,7 +53,7 @@
         android:layout_height="48dp"
         android:layout_centerVertical="true"
         android:layout_marginEnd="8dp"
-        android:layout_toStartOf="@id/add_more_sub_items"
+        android:layout_toStartOf="@id/arrow"
         android:padding="12dp"
         android:visibility="invisible"
         android:src="@drawable/clear_black"/>
