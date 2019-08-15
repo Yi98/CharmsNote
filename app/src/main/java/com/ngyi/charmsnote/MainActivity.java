@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void addItem(String title, ArrayList<String> subItems, int colorRes, int iconRes) {
-        //Let's create an item with R.layout.expanding_layout
+        // create an item with R.layout.expanding_layout
         final ExpandingItem item = expandingList.createNewItem(R.layout.expanding_layout);
         List<Task> tasks = dbHelper.getAllTasks();
 
