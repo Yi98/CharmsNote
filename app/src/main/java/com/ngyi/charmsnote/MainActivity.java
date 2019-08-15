@@ -55,28 +55,30 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        prefs = getSharedPreferences("com.ngyi.todolists", MODE_PRIVATE);
+        // Save preference to only run spotlight the first time app is opened
+        prefs = getSharedPreferences("com.ngyi.charmsnote", MODE_PRIVATE);
 
+        launchingSetup();
+
+        retrieveDbItems();
+    }
+
+
+    private void launchingSetup() {
+        ScrollView scrollView = findViewById(R.id.scrollView);
+        Toolbar toolbar = findViewById(R.id.my_toolbar);
+        floatingActionButton = findViewById(R.id.fab);
+        expandingList = findViewById(R.id.expanding_list_main);
         dbHelper = new TaskDbHelper(MainActivity.this);
 
-
-        List<Task> tasks = dbHelper.getAllTasks();
-
-        floatingActionButton = findViewById(R.id.fab);
-        Toolbar toolbar = findViewById(R.id.my_toolbar);
-
         setSupportActionBar(toolbar);
-
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayShowTitleEnabled(false);
-
         }
 
         floatingActionButton.setOnClickListener(clickListener);
 
-        expandingList = findViewById(R.id.expanding_list_main);
-        ScrollView scrollView = findViewById(R.id.scrollView);
-
+        // hide floating action button if scrolled down
         scrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
             public void onScrollChange(View view, int i, int i1, int i2, int i3) {
@@ -87,10 +89,13 @@ public class MainActivity extends AppCompatActivity {
                 else if (i1< i3  && !editing) {
                     floatingActionButton.show();
                 }
-
             }
         });
+    }
 
+
+    private void retrieveDbItems() {
+        List<Task> tasks = dbHelper.getAllTasks();
 
         for (int i=0; i<dbHelper.getTasksCount(); i++) {
             ArrayList<String> subtasks = TaskDbHelper.convertStringToArray(tasks.get(i).getSubtasks());
@@ -99,19 +104,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-//    @Override
-//    public void onWindowFocusChanged (boolean hasFocus) {
-//        int[] location = new int[2];
-//        floatingActionButton.getLocationOnScreen(location);
-//        int width = location[0];
-//        int height = location[1];
-//
-//        if (prefs.getBoolean("firstrun", true)) {
-//            setupSpotlight(width, height);
-//            prefs.edit().putBoolean("firstrun", false).apply();
-//        }
-//    }
 
 
     private void addItem(String title, ArrayList<String> subItems, int colorRes, int iconRes) {
@@ -320,6 +312,8 @@ public class MainActivity extends AppCompatActivity {
             });
         }
     }
+
+
 
     private void showInsertDialog(final OnItemCreated positive, final View view) {
         final EditText text = new EditText(this);
@@ -840,4 +834,24 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
+    /* unused codes */
+
+//    // get location of floating action button
+//    @Override
+//    public void onWindowFocusChanged (boolean hasFocus) {
+//        int[] location = new int[2];
+//        floatingActionButton.getLocationOnScreen(location);
+//        int width = location[0];
+//        int height = location[1];
+//
+//        if (prefs.getBoolean("firstrun", true)) {
+//            setupSpotlight(width, height);
+//            prefs.edit().putBoolean("firstrun", false).apply();
+//        }
+//    }
+
 }
+
+
