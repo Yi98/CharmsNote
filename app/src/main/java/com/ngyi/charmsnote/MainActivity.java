@@ -205,44 +205,56 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void configureSubItem(final ExpandingItem item, final View view, String subTitle, boolean isLastItem, final int index) {
-        final TextView tv = view.findViewById(R.id.sub_title);
-        ImageView removeSub = view.findViewById(R.id.remove_sub_item);
+        final TextView tv_subtitle = view.findViewById(R.id.sub_title);
+        final ImageView removeSub = view.findViewById(R.id.remove_sub_item);
 
+        // get parent view
         ViewParent parent = view.getParent();
         ViewParent grandparent = ((ViewGroup) parent).getParent();
-        View temp = (View) grandparent;
+        final View parentView = (View) grandparent;
 
-        tv.setText(subTitle);
-
-        TextView hiddenId = temp.findViewById(R.id.hiddenDbId);
+        TextView hiddenId = parentView.findViewById(R.id.hiddenDbId);
         int id = Integer.parseInt(hiddenId.getText().toString());
 
+        renderSubitems(index, removeSub, tv_subtitle, subTitle, id);
+
+        setSubitemsListener(isLastItem, removeSub, view, item, tv_subtitle, index, id);
+    }
+
+
+    private void renderSubitems(int index, ImageView removeSub, TextView tv_subtitle, String subTitle, int id) {
         Task currentTask = dbHelper.getTask(id);
         ArrayList<String> statusList = TaskDbHelper.convertStringToArray(currentTask.getStatus());
 
+        tv_subtitle.setText(subTitle);
 
         if (statusList.get(index).equalsIgnoreCase("false")) {
             removeSub.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.checkbox_black));
-            tv.setPaintFlags(tv.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
+            tv_subtitle.setPaintFlags(tv_subtitle.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
         }
         else if (statusList.get(index).equalsIgnoreCase("true")){
             removeSub.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.checkbox_complete_black));
-            tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            tv_subtitle.setPaintFlags(tv_subtitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         }
+    }
 
 
+    private void setSubitemsListener(boolean isLastItem, final ImageView removeSub, final View view, final ExpandingItem item, final TextView tv_subtitle, final int index, final int id) {
         if (isLastItem) {
             removeSub.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.add_black));
 
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // not allowed to add sub-items in editing mode
                     if (!editing) {
                         showInsertDialog(new OnItemCreated() {
                             @Override
                             public void itemCreated(String title) {
                                 View newSubItem = item.createSubItem(item.getSubItemsCount() - 1);
-                                configureSubItem(item, newSubItem, title, false, item.getSubItemsCount()-2);
+                                if (newSubItem != null) {
+                                    configureSubItem(item, newSubItem, title, false, item.getSubItemsCount()-2);
+                                }
                             }
                         }, view);
                     }
@@ -251,41 +263,33 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             view.setOnClickListener(new View.OnClickListener() {
-                ImageView removeSub = view.findViewById(R.id.remove_sub_item);
                 boolean checked = false;
 
                 @Override
                 public void onClick(View v) {
-                    if (tv.getPaintFlags() == 1297) {
-                        removeSub.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_black));
-                        tv.setPaintFlags(tv.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
+                    // check if the text is struck through
+                    if (tv_subtitle.getPaintFlags() == 1297) {
+                        removeSub.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.checkbox_black));
+                        tv_subtitle.setPaintFlags(tv_subtitle.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
                         checked = false;
                     }
                     else {
-                        removeSub.setImageDrawable(getResources().getDrawable(R.drawable.checkbox_complete_black));
-                        tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                        removeSub.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.checkbox_complete_black));
+                        tv_subtitle.setPaintFlags(tv_subtitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                         checked = true;
                     }
-
-
-                    ViewParent parent = view.getParent();
-                    ViewParent grandparent = ((ViewGroup) parent).getParent();
-                    View temp = (View) grandparent;
-
-                    TextView hiddenId = temp.findViewById(R.id.hiddenDbId);
-                    int id = Integer.parseInt(hiddenId.getText().toString());
 
                     Task oldTask = dbHelper.getTask(id);
 
                     ArrayList<String> subTasks = TaskDbHelper.convertStringToArray(oldTask.getSubtasks());
                     ArrayList<String> subStatus = TaskDbHelper.convertStringToArray(oldTask.getStatus());
 
-                        if (subTasks.get(index).equalsIgnoreCase(tv.getText().toString()) && checked) {
-                            subStatus.set(index, "true");
-                        }
-                        else if (subTasks.get(index).equalsIgnoreCase(tv.getText().toString()) && !checked) {
-                            subStatus.set(index, "false");
-                        }
+                    if (subTasks.get(index).equalsIgnoreCase(tv_subtitle.getText().toString()) && checked) {
+                        subStatus.set(index, "true");
+                    }
+                    else if (subTasks.get(index).equalsIgnoreCase(tv_subtitle.getText().toString()) && !checked) {
+                        subStatus.set(index, "false");
+                    }
 
                     String concatStatus = TaskDbHelper.convertArrayToString(subStatus);
 
